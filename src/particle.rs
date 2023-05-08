@@ -4,7 +4,7 @@ pub const DIM: usize = 2;
 pub struct Particle {
     id: usize,
 
-    pub derivatives: Vec<[f64; DIM]>,
+    derivatives: Vec<[f64; DIM]>,
 
     radius: f64,
     mass: f64,
@@ -30,5 +30,13 @@ impl Particle {
 
     pub fn mass(&self) -> f64 {
         self.mass
+    }
+
+    pub fn derivatives(&self) -> &Vec<[f64; DIM]> {
+        &self.derivatives
+    }
+
+    pub fn cloned_derivatives(&self) -> Vec<[f64; DIM]> {
+        self.derivatives.clone()
     }
 }
