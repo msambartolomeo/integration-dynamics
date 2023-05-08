@@ -1,15 +1,19 @@
+use std::vec;
+
 #[derive(Debug)]
 pub struct Particle<const DIM: usize> {
     derivatives: Vec<[f64; DIM]>,
+    prev_derivatives: Vec<[f64; DIM]>,
 
     radius: f64,
     mass: f64,
 }
 
 impl<const DIM: usize> Particle<DIM> {
-    pub fn new(r: [f64; DIM], v: [f64; DIM], radius: f64, mass: f64) -> Self {
+    pub fn new(r: [f64; DIM], v: [f64; DIM], a: [f64; DIM], radius: f64, mass: f64) -> Self {
         Self {
-            derivatives: vec![r, v],
+            derivatives: vec![r, v, a],
+            prev_derivatives: vec![],
             radius,
             mass,
         }
@@ -25,6 +29,11 @@ impl<const DIM: usize> Particle<DIM> {
 
     pub fn derivatives(&self) -> &Vec<[f64; DIM]> {
         &self.derivatives
+    }
+
+    pub fn set_derivatives(&mut self, derivatives: Vec<[f64; DIM]>) {
+        std::mem::swap(&mut self.prev_derivatives, &mut self.derivatives);
+        self.derivatives = derivatives;
     }
 
     pub fn cloned_derivatives(&self) -> Vec<[f64; DIM]> {
