@@ -1,7 +1,5 @@
 #[derive(Debug)]
 pub struct Particle<const DIM: usize> {
-    id: usize,
-
     derivatives: Vec<[f64; DIM]>,
 
     radius: f64,
@@ -9,17 +7,12 @@ pub struct Particle<const DIM: usize> {
 }
 
 impl<const DIM: usize> Particle<DIM> {
-    pub fn new(id: usize, r: [f64; DIM], v: [f64; DIM], radius: f64, mass: f64) -> Self {
+    pub fn new(r: [f64; DIM], v: [f64; DIM], radius: f64, mass: f64) -> Self {
         Self {
-            id,
             derivatives: vec![r, v],
             radius,
             mass,
         }
-    }
-
-    pub fn id(&self) -> usize {
-        self.id
     }
 
     pub fn radius(&self) -> f64 {
