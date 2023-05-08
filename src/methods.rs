@@ -1,12 +1,12 @@
-use crate::{particle::Particle, particle::DIM};
+use crate::particle::Particle;
 
-pub trait IntegrationMethod {
-    fn calculate_step(&self, particle: &Particle, delta_t: f64) -> Vec<[f64; DIM]>;
+pub trait IntegrationMethod<const DIM: usize> {
+    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]>;
 }
 
 pub struct Euler;
-impl IntegrationMethod for Euler {
-    fn calculate_step(&self, particle: &Particle, delta_t: f64) -> Vec<[f64; DIM]> {
+impl<const DIM: usize> IntegrationMethod<DIM> for Euler {
+    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let mut new_r = particle.cloned_derivatives();
 
@@ -20,8 +20,8 @@ impl IntegrationMethod for Euler {
 }
 
 pub struct EulerMod;
-impl IntegrationMethod for EulerMod {
-    fn calculate_step(&self, particle: &Particle, delta_t: f64) -> Vec<[f64; DIM]> {
+impl<const DIM: usize> IntegrationMethod<DIM> for EulerMod {
+    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let mut new_r = particle.cloned_derivatives();
 
@@ -35,8 +35,8 @@ impl IntegrationMethod for EulerMod {
 }
 
 pub struct Verlet;
-impl IntegrationMethod for Verlet {
-    fn calculate_step(&self, particle: &Particle, delta_t: f64) -> Vec<[f64; DIM]> {
+impl<const DIM: usize> IntegrationMethod<DIM> for Verlet {
+    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let mut new_r = particle.cloned_derivatives();
 
