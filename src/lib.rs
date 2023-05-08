@@ -1,4 +1,2 @@
-mod methods;
-mod particle;
-
-pub use particle::Particle;
+pub mod methods;
+pub mod particle;
