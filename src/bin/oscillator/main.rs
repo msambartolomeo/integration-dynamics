@@ -9,16 +9,18 @@ mod simulation;
 fn main() {
     let integration_method: Euler<DIM> = Euler::new(acceleration_function);
 
-    let mut simulation = OscillatorSimulation::new(0.01, Box::new(integration_method));
+    let mut simulation = OscillatorSimulation::new(0.0001, Box::new(integration_method));
 
-    let steps = simulation.run(10000);
+    let steps = simulation.run(50000);
 
     // Write to file
     let file = std::fs::File::create("oscillator.xyz").unwrap();
     let mut writer = BufWriter::new(file);
     for step in steps {
-        writeln!(writer, "1").unwrap();
-        writeln!(writer, "Properties=pos:R:1:velo:R:1",).unwrap();
-        writeln!(writer, "{:.8} {:.8}", step[0][0], step[1][0]).unwrap();
+        writeln!(writer, "3").unwrap();
+        writeln!(writer, "Properties=pos:R:1:velo:R:1:radius:R:1",).unwrap();
+        writeln!(writer, "{:.8} {:.8} 0.1", step[0][0], step[1][0]).unwrap();
+        writeln!(writer, "-1.5, 0.0 0.0").unwrap();
+        writeln!(writer, "1.5, 0.0 0.0").unwrap();
     }
 }
