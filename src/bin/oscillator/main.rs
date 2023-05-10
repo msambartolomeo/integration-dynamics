@@ -1,10 +1,8 @@
 use anyhow::Result;
 use clap::Parser;
 
-use integration_dynamics::methods::{Euler, EulerMod, IntegrationMethod};
-
-use args::{Cli, Integration};
-use constants::{acceleration_function, analytic_solution, DIM};
+use args::Cli;
+use constants::analytic_solution;
 use io::{output_data, output_simulation, Data};
 use simulation::Oscillator;
 
@@ -16,12 +14,7 @@ mod simulation;
 fn main() -> Result<()> {
     let args = Cli::parse();
 
-    let integration_method: Box<dyn IntegrationMethod<DIM>> = match args.integration_method {
-        Integration::Euler => Box::new(Euler::new(acceleration_function)),
-        Integration::EulerMod => Box::new(EulerMod::new(acceleration_function)),
-    };
-
-    let mut simulation = Oscillator::new(args.simulation_delta_t, integration_method);
+    let mut simulation = Oscillator::new(args.simulation_delta_t, args.integration_method);
 
     let output_iters = (args.max_time / args.output_delta_t) as usize;
     let simulation_iters = (args.output_delta_t / args.simulation_delta_t) as usize;

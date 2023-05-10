@@ -1,7 +1,12 @@
-use integration_dynamics::{methods::IntegrationMethod, particle::Particle};
+use integration_dynamics::{
+    methods::{Euler, EulerMod, IntegrationMethod},
+    particle::Particle,
+};
 
+use crate::args::Integration;
 use crate::constants::{
-    DIM, INITIAL_ACCELERATION, INITIAL_POSITION, INITIAL_VELOCITY, PARTICLE_MASS,
+    acceleration_function, DIM, INITIAL_ACCELERATION, INITIAL_POSITION, INITIAL_VELOCITY,
+    PARTICLE_MASS,
 };
 
 pub struct Oscillator {
@@ -11,7 +16,7 @@ pub struct Oscillator {
 }
 
 impl Oscillator {
-    pub fn new(delta_t: f64, integration_method: Box<dyn IntegrationMethod<DIM>>) -> Self {
+    pub fn new(delta_t: f64, integration_method: Integration) -> Self {
         let particle: Particle<DIM> = Particle::new(
             INITIAL_POSITION,
             INITIAL_VELOCITY,
@@ -19,6 +24,11 @@ impl Oscillator {
             0.0,
             PARTICLE_MASS,
         );
+
+        let integration_method: Box<dyn IntegrationMethod<DIM>> = match integration_method {
+            Integration::Euler => Box::new(Euler::new(acceleration_function)),
+            Integration::EulerMod => Box::new(EulerMod::new(acceleration_function)),
+        };
 
         Self {
             particle,
