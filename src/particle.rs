@@ -31,6 +31,10 @@ impl<const DIM: usize> Particle<DIM> {
         &self.derivatives
     }
 
+    pub fn prev_derivatives(&self) -> &Vec<[f64; DIM]> {
+        &self.prev_derivatives
+    }
+
     pub fn set_derivatives(&mut self, derivatives: Vec<[f64; DIM]>) {
         std::mem::swap(&mut self.prev_derivatives, &mut self.derivatives);
         self.derivatives = derivatives;
@@ -38,5 +42,9 @@ impl<const DIM: usize> Particle<DIM> {
 
     pub fn cloned_derivatives(&self) -> Vec<[f64; DIM]> {
         self.derivatives.clone()
+    }
+
+    pub fn add_derivative(&mut self, derivative: [f64; DIM]) {
+        self.derivatives.push(derivative);
     }
 }

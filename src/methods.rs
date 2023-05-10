@@ -5,11 +5,11 @@ pub trait IntegrationMethod<const DIM: usize> {
 }
 
 pub struct Euler<const DIM: usize> {
-    acceleration_function: fn(&Particle<DIM>) -> f64,
+    acceleration_function: fn(&Particle<DIM>) -> [f64; DIM],
 }
 
 impl<const DIM: usize> Euler<DIM> {
-    pub fn new(acceleration_function: fn(&Particle<DIM>) -> f64) -> Self {
+    pub fn new(acceleration_function: fn(&Particle<DIM>) -> [f64; DIM]) -> Self {
         Self {
             acceleration_function,
         }
@@ -23,9 +23,9 @@ impl<const DIM: usize> IntegrationMethod<DIM> for Euler<DIM> {
         let new_acceleration = (self.acceleration_function)(&particle);
 
         for i in 0..DIM {
-            new_r[0][i] += delta_t * r[1][i] + delta_t.powf(2.0) / 2.0 * r[2][i];
+            new_r[0][i] += delta_t * r[1][i] + delta_t.powi(2) / 2.0 * r[2][i];
             new_r[1][i] += delta_t * r[2][i];
-            new_r[2][i] = new_acceleration;
+            new_r[2][i] = new_acceleration[i];
         }
 
         new_r
@@ -33,11 +33,11 @@ impl<const DIM: usize> IntegrationMethod<DIM> for Euler<DIM> {
 }
 
 pub struct EulerMod<const DIM: usize> {
-    acceleration_function: fn(&Particle<DIM>) -> f64,
+    acceleration_function: fn(&Particle<DIM>) -> [f64; DIM],
 }
 
 impl<const DIM: usize> EulerMod<DIM> {
-    pub fn new(acceleration_function: fn(&Particle<DIM>) -> f64) -> Self {
+    pub fn new(acceleration_function: fn(&Particle<DIM>) -> [f64; DIM]) -> Self {
         Self {
             acceleration_function,
         }
@@ -52,8 +52,8 @@ impl<const DIM: usize> IntegrationMethod<DIM> for EulerMod<DIM> {
 
         for i in 0..DIM {
             new_r[1][i] += delta_t * r[2][i];
-            new_r[0][i] += delta_t * r[1][i] + delta_t.powf(2.0) / 2.0 * r[2][i];
-            new_r[2][i] = new_acceleration;
+            new_r[0][i] += delta_t * r[1][i] + delta_t.powi(2) / 2.0 * r[2][i];
+            new_r[2][i] = new_acceleration[i];
         }
 
         new_r
@@ -70,5 +70,108 @@ impl<const DIM: usize> IntegrationMethod<DIM> for Verlet {
             new_r[0][1] = 2.0 * new_r[0][1];
         }
         todo!();
+    }
+}
+
+pub struct Beeman<const DIM: usize> {
+    acceleration_function: fn(&Particle<DIM>) -> [f64; DIM],
+}
+
+impl<const DIM: usize> Beeman<DIM> {
+    pub fn new(acceleration_function: fn(&Particle<DIM>) -> [f64; DIM]) -> Self {
+        Self {
+            acceleration_function,
+        }
+    }
+}
+
+impl<const DIM: usize> IntegrationMethod<DIM> for Beeman<DIM> {
+    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
+        let r = particle.derivatives();
+        let old_r = particle.prev_derivatives();
+        let mut new_r = particle.cloned_derivatives();
+        let new_acceleration = (self.acceleration_function)(&particle);
+
+        for i in 0..DIM {
+            new_r[2][i] = new_acceleration[i];
+
+            new_r[0][i] += r[1][i] * delta_t + 2.0 / 3.0 * r[2][i] * delta_t.powi(2)
+                - 1.0 / 6.0 * old_r[2][i] * delta_t.powi(2);
+
+            new_r[1][i] += 1.0 / 3.0 * new_r[2][i] * delta_t + 5.0 / 6.0 * r[2][i] * delta_t
+                - 1.0 / 6.0 * old_r[2][i] * delta_t;
+        }
+
+        new_r
+    }
+}
+
+pub struct GearPredictorCorrector<const DIM: usize> {
+    acceleration_function: fn(&Particle<DIM>) -> [f64; DIM],
+}
+
+impl<const DIM: usize> GearPredictorCorrector<DIM> {
+    pub fn new(
+        acceleration_function: fn(&Particle<DIM>) -> [f64; DIM],
+        particles_to_init: Vec<(&mut Particle<DIM>, Vec<[f64; DIM]>)>,
+    ) -> Self {
+        for (particle, derivatives) in particles_to_init {
+            for derivative in derivatives {
+                particle.add_derivative(derivative);
+            }
+        }
+
+        Self {
+            acceleration_function,
+        }
+    }
+}
+
+impl<const DIM: usize> IntegrationMethod<DIM> for GearPredictorCorrector<DIM> {
+    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
+        let r = particle.derivatives();
+
+        // Predict
+        let mut new_r = particle.cloned_derivatives();
+        let delta_time_2 = delta_t.powi(2);
+        let delta_time_3 = delta_t.powi(3);
+        let delta_time_4 = delta_t.powi(4);
+        let delta_time_5 = delta_t.powi(5);
+
+        for i in 0..DIM {
+            new_r[0][i] += r[1][i] * delta_t
+                + 1.0 / 2.0 * delta_time_2 * r[2][i]
+                + 1.0 / 6.0 * delta_time_3 * r[3][i]
+                + 1.0 / 24.0 * delta_time_4 * r[4][i]
+                + 1.0 / 120.0 * delta_time_5 * r[5][i];
+            new_r[1][i] += r[2][i] * delta_t
+                + 1.0 / 2.0 * delta_time_2 * r[3][i]
+                + 1.0 / 6.0 * delta_time_3 * r[4][i]
+                + 1.0 / 24.0 * delta_time_4 * r[5][i];
+            new_r[2][i] += r[3][i] * delta_t
+                + 1.0 / 2.0 * delta_time_2 * r[4][i]
+                + 1.0 / 6.0 * delta_time_3 * r[5][i];
+            new_r[3][i] += r[4][i] * delta_t + 1.0 / 2.0 * delta_time_2 * r[5][i];
+            new_r[4][i] += r[5][i] * delta_t;
+        }
+
+        // Evaluate
+        let new_acceleration = (self.acceleration_function)(&particle);
+        let mut delta_acc = vec![0.0; DIM];
+        for i in 0..DIM {
+            delta_acc[i] = (new_acceleration[i] - r[2][i]) * delta_time_2 / 2.0;
+        }
+
+        // Correct
+        for i in 0..DIM {
+            new_r[0][i] += 3.0 / 16.0 * delta_acc[i];
+            new_r[1][i] += 251.0 / 360.0 * delta_acc[i] / delta_t;
+            new_r[2][i] += 2.0 * delta_acc[i] / delta_time_2;
+            new_r[3][i] += 11.0 / 3.0 * delta_acc[i] / delta_time_3;
+            new_r[4][i] += 4.0 * delta_acc[i] / delta_time_4;
+            new_r[5][i] += 2.0 * delta_acc[i] / delta_time_5;
+        }
+
+        new_r
     }
 }

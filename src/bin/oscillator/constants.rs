@@ -14,13 +14,16 @@ pub const INITIAL_ACCELERATION: [f64; DIM] = [(-RESTORING_FORCE_CONSTANT * INITI
     - AMORTIGUATION_CONSTANT * INITIAL_VELOCITY[0])
     / PARTICLE_MASS];
 
-pub fn acceleration_function(particle: &Particle<DIM>) -> f64 {
+pub fn acceleration_function(particle: &Particle<DIM>) -> [f64; DIM] {
     let r = particle.derivatives();
+    let mut acceleration = [0.0; DIM];
 
-    let restoring_force = -RESTORING_FORCE_CONSTANT * r[0][0];
-    let amortiguation_force = -AMORTIGUATION_CONSTANT * r[1][0];
+    for i in 0..DIM {
+        acceleration[i] = (-RESTORING_FORCE_CONSTANT * r[0][i] - AMORTIGUATION_CONSTANT * r[1][i])
+            / particle.mass();
+    }
 
-    (restoring_force + amortiguation_force) / particle.mass()
+    acceleration
 }
 
 const A: f64 = -AMORTIGUATION_CONSTANT / (2.0 * PARTICLE_MASS);
