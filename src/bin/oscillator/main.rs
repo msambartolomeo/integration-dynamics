@@ -2,12 +2,16 @@ use constants::{acceleration_function, DIM};
 use integration_dynamics::methods::Euler;
 use simulation::OscillatorSimulation;
 use std::io::{BufWriter, Write};
+use clap::Parser;
 
+use args::{Cli, Integration};
+mod args;
 mod constants;
 mod simulation;
 
 fn main() {
     let integration_method: Euler<DIM> = Euler::new(acceleration_function);
+    let args = Cli::parse();
 
     let mut simulation = OscillatorSimulation::new(0.0001, Box::new(integration_method));
 
