@@ -7,6 +7,7 @@ use clap::Parser;
 use args::{Cli, Integration};
 mod args;
 mod constants;
+mod io;
 mod simulation;
 
 fn main() {
