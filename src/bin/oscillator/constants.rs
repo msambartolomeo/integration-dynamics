@@ -22,3 +22,11 @@ pub fn acceleration_function(particle: &Particle<DIM>) -> f64 {
 
     (restoring_force + amortiguation_force) / particle.mass()
 }
+
+const A: f64 = -AMORTIGUATION_CONSTANT / (2.0 * PARTICLE_MASS);
+const B: f64 = RESTORING_FORCE_CONSTANT / PARTICLE_MASS
+    - AMORTIGUATION_CONSTANT * AMORTIGUATION_CONSTANT / (4.0 * PARTICLE_MASS * PARTICLE_MASS);
+
+pub fn analytic_solution(t: f64) -> f64 {
+    AMPLITUDE * (A * t).exp() * (B.sqrt() * t).cos()
+}
