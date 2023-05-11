@@ -161,7 +161,7 @@ impl<const DIM: usize> IntegrationMethod<DIM> for VerletLeapFrog<DIM> {
         let old_r = particle.prev_derivatives();
         let mut new_r = particle.cloned_derivatives();
 
-        let v_half_step = self.get_v_half_step(&particle);
+        let v_half_step = self.get_v_half_step(particle);
 
         for i in 0..DIM {
             new_r[0][i] += self.delta_t * v_half_step[i];
@@ -179,7 +179,7 @@ impl<const DIM: usize> IntegrationMethod<DIM> for VerletLeapFrog<DIM> {
         let mut old = particle.set_derivatives(derivatives);
 
         // NOTE: Use v(t + delta_t/2) for previous instead of v(t)
-        old[1] = self.get_v_half_step(&particle);
+        old[1] = self.get_v_half_step(particle);
         particle.set_prev_derivatives(old);
     }
 }
@@ -209,7 +209,7 @@ impl<const DIM: usize> IntegrationMethod<DIM> for VelocityVerlet<DIM> {
         new_r[2] = (self.acceleration_function)(&new_r[0], &new_r[1], particle.mass());
         for i in 0..DIM {
             new_r[0][i] += self.delta_t * r[1][i] + self.delta_t.powi(2) * r[2][i];
-            new_r[1][i] += self.delta_t / 2.0 * (r[2][i] + new_r[2][i])
+            new_r[1][i] += self.delta_t / 2.0 * (r[2][i] + new_r[2][i]);
         }
 
         new_r
@@ -281,8 +281,8 @@ impl<const DIM: usize> GearPredictorCorrector<DIM> {
         }
 
         Self {
-            acceleration_function_depends_on_velocity,
             acceleration_function,
+            acceleration_function_depends_on_velocity,
             delta_t,
         }
     }

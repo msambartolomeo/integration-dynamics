@@ -14,7 +14,7 @@ mod simulation;
 fn main() -> Result<()> {
     let args = Cli::parse();
 
-    let mut simulation = Oscillator::new(args.simulation_delta_t, args.integration_method);
+    let mut simulation = Oscillator::new(args.simulation_delta_t, &args.integration_method);
 
     let output_iters = (args.max_time / args.output_delta_t) as usize;
     let simulation_iters = (args.output_delta_t / args.simulation_delta_t) as usize;

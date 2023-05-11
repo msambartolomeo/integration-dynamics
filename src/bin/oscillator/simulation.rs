@@ -16,7 +16,7 @@ pub struct Oscillator {
 }
 
 impl Oscillator {
-    pub fn new(delta_t: f64, integration_method: Integration) -> Self {
+    pub fn new(delta_t: f64, integration_method: &Integration) -> Self {
         let mut particle: Particle<DIM> = Particle::new(
             INITIAL_POSITION,
             INITIAL_VELOCITY,

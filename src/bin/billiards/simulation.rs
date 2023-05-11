@@ -13,7 +13,6 @@ use rand::Rng;
 pub struct Billiards {
     balls: Vec<Option<Particle<DIM>>>,
     integration_method: Box<dyn IntegrationMethod<DIM>>,
-    delta_t: f64,
 }
 
 impl Billiards {
@@ -99,7 +98,6 @@ impl Billiards {
 
         Self {
             balls,
-            delta_t,
             integration_method,
         }
     }

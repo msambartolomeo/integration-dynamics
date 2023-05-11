@@ -8,6 +8,7 @@ pub struct Particle<const DIM: usize> {
 }
 
 impl<const DIM: usize> Particle<DIM> {
+    #[must_use]
     pub fn new(r: [f64; DIM], v: [f64; DIM], a: [f64; DIM], radius: f64, mass: f64) -> Self {
         Self {
             derivatives: vec![r, v, a],
@@ -17,18 +18,22 @@ impl<const DIM: usize> Particle<DIM> {
         }
     }
 
+    #[must_use]
     pub fn radius(&self) -> f64 {
         self.radius
     }
 
+    #[must_use]
     pub fn mass(&self) -> f64 {
         self.mass
     }
 
+    #[must_use]
     pub fn derivatives(&self) -> &Vec<[f64; DIM]> {
         &self.derivatives
     }
 
+    #[must_use]
     pub fn get_distance(&self, other: &Self) -> f64 {
         let mut distance = 0.0;
 
