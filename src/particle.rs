@@ -1,6 +1,6 @@
 use std::vec;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Particle<const DIM: usize> {
     derivatives: Vec<[f64; DIM]>,
     prev_derivatives: Vec<[f64; DIM]>,
@@ -50,5 +50,15 @@ impl<const DIM: usize> Particle<DIM> {
 
     pub fn add_derivative(&mut self, derivative: [f64; DIM]) {
         self.derivatives.push(derivative);
+    }
+
+    pub fn get_distance(&self, other: &Self) -> f64 {
+        let mut distance = 0.0;
+
+        for i in 0..DIM {
+            distance += (self.derivatives[0][i] - other.derivatives[0][i]).powi(2);
+        }
+
+        distance.sqrt()
     }
 }
