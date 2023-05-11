@@ -63,16 +63,45 @@ impl<const DIM: usize> IntegrationMethod<DIM> for EulerMod<DIM> {
     }
 }
 
-pub struct Verlet;
-impl<const DIM: usize> IntegrationMethod<DIM> for Verlet {
+pub struct Verlet<const DIM: usize> {
+    acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
+}
+
+impl<const DIM: usize> Verlet<DIM> {
+    pub fn new(
+        acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
+        particles_to_init: &mut [&mut Particle<DIM>],
+        delta_t: f64,
+    ) -> Self {
+        let euler = Euler::new(acceleration_function);
+
+        for particle in particles_to_init {
+            let prev_derivatives = euler.calculate_step(&particle, -delta_t);
+            particle.set_prev_derivatives(prev_derivatives);
+        }
+
+        Self {
+            acceleration_function,
+        }
+    }
+}
+
+impl<const DIM: usize> IntegrationMethod<DIM> for Verlet<DIM> {
     fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
+        let old_r = particle.prev_derivatives();
         let mut new_r = particle.cloned_derivatives();
 
         for i in 0..DIM {
-            new_r[0][1] = 2.0 * new_r[0][1];
+            new_r[0][i] *= 2.0;
+            new_r[0][i] += -old_r[0][i] + delta_t.powi(2) * r[2][i];
+
+            new_r[1][i] = (new_r[0][i] - old_r[0][i]) / (2.0 * delta_t);
         }
-        todo!();
+
+        new_r[2] = (self.acceleration_function)(&new_r[0], &new_r[1], particle.mass());
+
+        new_r
     }
 }
 
