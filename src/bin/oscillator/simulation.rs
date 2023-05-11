@@ -65,14 +65,14 @@ impl Oscillator {
         }
     }
 
-    pub fn run(&mut self, steps: usize) -> Vec<[f64; DIM]> {
+    pub fn run(&mut self, steps: usize) -> &[[f64; DIM]] {
         for _ in 0..steps {
-            self.particle.set_derivatives(
-                self.integration_method
-                    .calculate_step(&self.particle, self.delta_t),
-            );
+            let derivatives = self
+                .integration_method
+                .calculate_step(&mut self.particle, self.delta_t);
+            self.particle.set_derivatives(derivatives);
         }
 
-        self.particle.cloned_derivatives()
+        self.particle.derivatives()
     }
 }

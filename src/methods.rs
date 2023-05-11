@@ -1,7 +1,7 @@
 use crate::particle::Particle;
 
 pub trait IntegrationMethod<const DIM: usize> {
-    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]>;
+    fn calculate_step(&self, particle: &mut Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]>;
 }
 
 pub struct Euler<const DIM: usize> {
@@ -19,7 +19,7 @@ impl<const DIM: usize> Euler<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for Euler<DIM> {
-    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &mut Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let mut new_r = particle.cloned_derivatives();
 
@@ -48,7 +48,7 @@ impl<const DIM: usize> EulerMod<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for EulerMod<DIM> {
-    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &mut Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let mut new_r = particle.cloned_derivatives();
 
@@ -76,7 +76,7 @@ impl<const DIM: usize> Verlet<DIM> {
         let euler = Euler::new(acceleration_function);
 
         for particle in particles_to_init {
-            let prev_derivatives = euler.calculate_step(&particle, -delta_t);
+            let prev_derivatives = euler.calculate_step(particle, -delta_t);
             particle.set_prev_derivatives(prev_derivatives);
         }
 
@@ -87,7 +87,7 @@ impl<const DIM: usize> Verlet<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for Verlet<DIM> {
-    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &mut Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let old_r = particle.prev_derivatives();
         let mut new_r = particle.cloned_derivatives();
@@ -118,7 +118,7 @@ impl<const DIM: usize> Beeman<DIM> {
         let euler = Euler::new(acceleration_function);
 
         for particle in particles_to_init {
-            let prev_derivatives = euler.calculate_step(&particle, -delta_t);
+            let prev_derivatives = euler.calculate_step(particle, -delta_t);
             particle.set_prev_derivatives(prev_derivatives);
         }
 
@@ -129,7 +129,7 @@ impl<const DIM: usize> Beeman<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for Beeman<DIM> {
-    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &mut Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let old_r = particle.prev_derivatives();
         let mut new_r = particle.cloned_derivatives();
@@ -172,7 +172,7 @@ impl<const DIM: usize> GearPredictorCorrector<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for GearPredictorCorrector<DIM> {
-    fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &mut Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
 
         // Predict
