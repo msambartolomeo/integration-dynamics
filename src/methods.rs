@@ -148,7 +148,6 @@ impl<const DIM: usize> VerletLeapFrog<DIM> {
 
 impl<const DIM: usize> IntegrationMethod<DIM> for VerletLeapFrog<DIM> {
     fn calculate_step(&self, particle: &mut Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
-        let r = particle.derivatives();
         let old_r = particle.prev_derivatives();
         let mut new_r = particle.cloned_derivatives();
 
