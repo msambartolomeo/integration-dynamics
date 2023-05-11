@@ -52,7 +52,7 @@ impl<const DIM: usize> IntegrationMethod<DIM> for EulerMod<DIM> {
 
         for i in 0..DIM {
             new_r[1][i] += delta_t * r[2][i];
-            new_r[0][i] += delta_t * r[1][i] + delta_t.powi(2) / 2.0 * r[2][i];
+            new_r[0][i] += delta_t * new_r[1][i] + delta_t.powi(2) / 2.0 * r[2][i];
             new_r[2][i] = new_acceleration[i];
         }
 
