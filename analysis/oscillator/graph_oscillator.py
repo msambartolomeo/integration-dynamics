@@ -29,10 +29,10 @@ def plot(path):
     times = data['times']
     numeric = data['numerics']
     analytic = data['analytics']
-    error = data['errors']
 
     # Plot numeric and analytic values on one figure
-    fig1 = plt.figure(figsize=(1280 / 108, 720 / 108), dpi=108)
+    fig = plt.figure(figsize=(1280 / 108, 720 / 108), dpi=108)
+    plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({"font.size": 16})
     plt.xlabel('Tiempo transcurrido (s)')
     plt.ylabel('Posicion del osciladór (m)')
@@ -42,18 +42,7 @@ def plot(path):
 
     plt.legend()
     # Save first figure to a file
-    fig1.savefig(RESULTS_PATH + 'numeric_analytic_values.png')
-
-    # Plot error values on a separate figure
-    fig2 = plt.figure(figsize=(1280 / 108, 720 / 108), dpi=108)
-    plt.rcParams.update({"font.size": 16})
-    plt.xlabel('Tiempo transcurrido (s)')
-    plt.ylabel('Error cuádratico medio')
-
-    plt.plot(times, error, label='Error')
-
-    # Save second figure to a file
-    fig2.savefig(RESULTS_PATH + 'error_values.png')
+    fig.savefig(RESULTS_PATH + 'numeric_analytic_values.png')
 
     plt.show()
 

@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import matplotlib.pyplot as plt
 
 RESULTS_PATH = "./analysis/oscillator/figs/"
@@ -16,19 +17,22 @@ def read_method_data() -> dict[str, dict[str, list[float]]]:
 
             # Read the file and get the times
             with open(DIR + file, "r") as f:
-                data = {
-                    'times': [],
-                    'numerics': [],
-                    'analytics': [],
-                    'errors': [],
-                }
+                times = []
+                numerics = []
+                analytics = []
+
                 for line in f:
                     splits = line.split(" ")
 
-                    data['times'].append(float(splits[0]))
-                    data['numerics'].append(float(splits[1]))
-                    data['analytics'].append(float(splits[2]))
-                    data['errors'].append(float(splits[3]))
+                    times.append(float(splits[0]))
+                    numerics.append(float(splits[1]))
+                    analytics.append(float(splits[2]))
+
+                data = {
+                    'times': np.array(times),
+                    'numeric': np.array(numerics),
+                    'analytic': np.array(analytics),
+                }
 
                 # Add the data to the dict
                 data_per_method[method] = data
@@ -41,15 +45,21 @@ def plot():
 
     # Plot error values
     fig = plt.figure(figsize=(1280 / 108, 720 / 108), dpi=108)
+    plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({"font.size": 16})
-    plt.xlabel('Tiempo transcurrido (s)')
     plt.ylabel('Error cuádratico medio')
+    plt.xlabel('Metodo de integración')
 
+    errors = []
     for method in data:
-        plt.plot(data[method]['times'], data[method]['errors'], label=method)
+        dif = data[method]['numeric'] - data[method]['analytic']
+        error = np.average(dif ** 2)
+        errors.append(error)
 
-    plt.legend()
-    # Save second figure to a file
+    plt.bar(data.keys(), errors)
+    # Scientific notation
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+
     fig.savefig(RESULTS_PATH + 'error_values.png')
 
     plt.show()

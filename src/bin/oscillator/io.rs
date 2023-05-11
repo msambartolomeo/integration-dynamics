@@ -24,21 +24,14 @@ pub struct Data {
     time: f64,
     numeric_position: f64,
     analitic_position: f64,
-    mean_square_error: f64,
 }
 
 impl Data {
-    pub fn new(
-        time: f64,
-        numeric_position: f64,
-        analitic_position: f64,
-        mean_square_error: f64,
-    ) -> Self {
+    pub fn new(time: f64, numeric_position: f64, analitic_position: f64) -> Self {
         Data {
             time,
             numeric_position,
             analitic_position,
-            mean_square_error,
         }
     }
 }
@@ -50,8 +43,8 @@ pub fn output_data(path: &str, data: &[Data]) -> Result<()> {
     for value in data {
         writeln!(
             writer,
-            "{} {} {} {}",
-            value.time, value.numeric_position, value.analitic_position, value.mean_square_error
+            "{} {} {}",
+            value.time, value.numeric_position, value.analitic_position
         )?;
     }
 

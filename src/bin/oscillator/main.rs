@@ -29,15 +29,9 @@ fn main() -> Result<()> {
 
         let numeric_position = r[0][0];
         let analitic_position = analytic_solution(time);
-        let mean_square_error = (numeric_position - analitic_position).powi(2) / 2.0;
 
         steps.push((r[0][0], r[1][0]));
-        data.push(Data::new(
-            time,
-            numeric_position,
-            analitic_position,
-            mean_square_error,
-        ));
+        data.push(Data::new(time, numeric_position, analitic_position));
     }
 
     output_simulation(&args.xyz_output_path, &steps)?;
