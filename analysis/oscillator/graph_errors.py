@@ -58,7 +58,7 @@ def plot():
 
     plt.bar(data.keys(), errors)
     # Scientific notation
-    plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+    # plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 
     fig.savefig(RESULTS_PATH + 'error_values.png')
 

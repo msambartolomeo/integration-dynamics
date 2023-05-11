@@ -5,11 +5,13 @@ pub trait IntegrationMethod<const DIM: usize> {
 }
 
 pub struct Euler<const DIM: usize> {
-    acceleration_function: fn(&Particle<DIM>) -> [f64; DIM],
+    acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
 }
 
 impl<const DIM: usize> Euler<DIM> {
-    pub fn new(acceleration_function: fn(&Particle<DIM>) -> [f64; DIM]) -> Self {
+    pub fn new(
+        acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
+    ) -> Self {
         Self {
             acceleration_function,
         }
@@ -20,24 +22,25 @@ impl<const DIM: usize> IntegrationMethod<DIM> for Euler<DIM> {
     fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let mut new_r = particle.cloned_derivatives();
-        let new_acceleration = (self.acceleration_function)(&particle);
 
         for i in 0..DIM {
             new_r[0][i] += delta_t * r[1][i] + delta_t.powi(2) / 2.0 * r[2][i];
             new_r[1][i] += delta_t * r[2][i];
-            new_r[2][i] = new_acceleration[i];
         }
+        new_r[2] = (self.acceleration_function)(&new_r[0], &new_r[1], particle.mass());
 
         new_r
     }
 }
 
 pub struct EulerMod<const DIM: usize> {
-    acceleration_function: fn(&Particle<DIM>) -> [f64; DIM],
+    acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
 }
 
 impl<const DIM: usize> EulerMod<DIM> {
-    pub fn new(acceleration_function: fn(&Particle<DIM>) -> [f64; DIM]) -> Self {
+    pub fn new(
+        acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
+    ) -> Self {
         Self {
             acceleration_function,
         }
@@ -48,13 +51,13 @@ impl<const DIM: usize> IntegrationMethod<DIM> for EulerMod<DIM> {
     fn calculate_step(&self, particle: &Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let mut new_r = particle.cloned_derivatives();
-        let new_acceleration = (self.acceleration_function)(&particle);
 
         for i in 0..DIM {
             new_r[1][i] += delta_t * r[2][i];
             new_r[0][i] += delta_t * new_r[1][i] + delta_t.powi(2) / 2.0 * r[2][i];
-            new_r[2][i] = new_acceleration[i];
         }
+
+        new_r[2] = (self.acceleration_function)(&new_r[0], &new_r[1], particle.mass());
 
         new_r
     }
@@ -74,11 +77,13 @@ impl<const DIM: usize> IntegrationMethod<DIM> for Verlet {
 }
 
 pub struct Beeman<const DIM: usize> {
-    acceleration_function: fn(&Particle<DIM>) -> [f64; DIM],
+    acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
 }
 
 impl<const DIM: usize> Beeman<DIM> {
-    pub fn new(acceleration_function: fn(&Particle<DIM>) -> [f64; DIM]) -> Self {
+    pub fn new(
+        acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
+    ) -> Self {
         Self {
             acceleration_function,
         }
@@ -90,29 +95,27 @@ impl<const DIM: usize> IntegrationMethod<DIM> for Beeman<DIM> {
         let r = particle.derivatives();
         let old_r = particle.prev_derivatives();
         let mut new_r = particle.cloned_derivatives();
-        let new_acceleration = (self.acceleration_function)(&particle);
 
         for i in 0..DIM {
-            new_r[2][i] = new_acceleration[i];
-
             new_r[0][i] += r[1][i] * delta_t + 2.0 / 3.0 * r[2][i] * delta_t.powi(2)
                 - 1.0 / 6.0 * old_r[2][i] * delta_t.powi(2);
 
             new_r[1][i] += 1.0 / 3.0 * new_r[2][i] * delta_t + 5.0 / 6.0 * r[2][i] * delta_t
                 - 1.0 / 6.0 * old_r[2][i] * delta_t;
         }
+        new_r[2] = (self.acceleration_function)(&new_r[0], &new_r[1], particle.mass());
 
         new_r
     }
 }
 
 pub struct GearPredictorCorrector<const DIM: usize> {
-    acceleration_function: fn(&Particle<DIM>) -> [f64; DIM],
+    acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
 }
 
 impl<const DIM: usize> GearPredictorCorrector<DIM> {
     pub fn new(
-        acceleration_function: fn(&Particle<DIM>) -> [f64; DIM],
+        acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
         particles_to_init: Vec<(&mut Particle<DIM>, Vec<[f64; DIM]>)>,
     ) -> Self {
         for (particle, derivatives) in particles_to_init {
@@ -156,8 +159,8 @@ impl<const DIM: usize> IntegrationMethod<DIM> for GearPredictorCorrector<DIM> {
         }
 
         // Evaluate
-        let new_acceleration = (self.acceleration_function)(&particle);
-        let mut delta_acc = vec![0.0; DIM];
+        let new_acceleration = (self.acceleration_function)(&new_r[0], &new_r[1], particle.mass());
+        let mut delta_acc = [0.0; DIM];
         for i in 0..DIM {
             delta_acc[i] = (new_acceleration[i] - r[2][i]) * delta_time_2 / 2.0;
         }
