@@ -27,4 +27,5 @@ pub enum Integration {
     Euler,
     EulerMod,
     Beeman,
+    GearPredictorCorrector,
 }

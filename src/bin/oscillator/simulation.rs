@@ -1,12 +1,15 @@
 use integration_dynamics::{
-    methods::{Beeman, Euler, EulerMod, IntegrationMethod},
+    methods::{Beeman, Euler, EulerMod, GearPredictorCorrector, IntegrationMethod},
     particle::Particle,
 };
 
-use crate::args::Integration;
 use crate::constants::{
     acceleration_function, DIM, INITIAL_ACCELERATION, INITIAL_POSITION, INITIAL_VELOCITY,
     PARTICLE_MASS,
+};
+use crate::{
+    args::Integration,
+    constants::{INITIAL_FIFTH_DERIVATIVE, INITIAL_FOURTH_DERIVATIVE, INITIAL_THIRD_DERIVATIVE},
 };
 
 pub struct Oscillator {
@@ -33,6 +36,21 @@ impl Oscillator {
                 &mut [&mut particle],
                 delta_t,
             )),
+            Integration::GearPredictorCorrector => {
+                let particles_to_init = vec![(
+                    &mut particle,
+                    vec![
+                        INITIAL_THIRD_DERIVATIVE,
+                        INITIAL_FOURTH_DERIVATIVE,
+                        INITIAL_FIFTH_DERIVATIVE,
+                    ],
+                )];
+                Box::new(GearPredictorCorrector::new(
+                    acceleration_function,
+                    true,
+                    particles_to_init,
+                ))
+            }
         };
 
         Self {
