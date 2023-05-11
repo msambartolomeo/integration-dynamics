@@ -120,11 +120,13 @@ impl<const DIM: usize> IntegrationMethod<DIM> for Beeman<DIM> {
 
 pub struct GearPredictorCorrector<const DIM: usize> {
     acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
+    acceleration_function_depends_on_velocity: bool,
 }
 
 impl<const DIM: usize> GearPredictorCorrector<DIM> {
     pub fn new(
         acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
+        acceleration_function_depends_on_velocity: bool,
         particles_to_init: Vec<(&mut Particle<DIM>, Vec<[f64; DIM]>)>,
     ) -> Self {
         for (particle, derivatives) in particles_to_init {
@@ -134,6 +136,7 @@ impl<const DIM: usize> GearPredictorCorrector<DIM> {
         }
 
         Self {
+            acceleration_function_depends_on_velocity,
             acceleration_function,
         }
     }
@@ -171,12 +174,18 @@ impl<const DIM: usize> IntegrationMethod<DIM> for GearPredictorCorrector<DIM> {
         let new_acceleration = (self.acceleration_function)(&new_r[0], &new_r[1], particle.mass());
         let mut delta_acc = [0.0; DIM];
         for i in 0..DIM {
-            delta_acc[i] = (new_acceleration[i] - r[2][i]) * delta_time_2 / 2.0;
+            delta_acc[i] = (new_acceleration[i] - new_r[2][i]) * delta_time_2 / 2.0;
         }
+
+        let alpha_0 = if self.acceleration_function_depends_on_velocity {
+            3.0 / 16.0
+        } else {
+            3.0 / 20.0
+        };
 
         // Correct
         for i in 0..DIM {
-            new_r[0][i] += 3.0 / 16.0 * delta_acc[i];
+            new_r[0][i] += alpha_0 * delta_acc[i];
             new_r[1][i] += 251.0 / 360.0 * delta_acc[i] / delta_t;
             new_r[2][i] += 2.0 * delta_acc[i] / delta_time_2;
             new_r[3][i] += 11.0 / 3.0 * delta_acc[i] / delta_time_3;
