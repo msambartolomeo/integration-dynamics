@@ -83,7 +83,16 @@ pub struct Beeman<const DIM: usize> {
 impl<const DIM: usize> Beeman<DIM> {
     pub fn new(
         acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
+        particles_to_init: &mut [&mut Particle<DIM>],
+        delta_t: f64,
     ) -> Self {
+        let euler = Euler::new(acceleration_function);
+
+        for particle in particles_to_init {
+            let prev_derivatives = euler.calculate_step(&particle, -delta_t);
+            particle.set_prev_derivatives(prev_derivatives);
+        }
+
         Self {
             acceleration_function,
         }

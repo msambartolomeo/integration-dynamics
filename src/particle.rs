@@ -35,6 +35,10 @@ impl<const DIM: usize> Particle<DIM> {
         &self.prev_derivatives
     }
 
+    pub fn set_prev_derivatives(&mut self, derivatives: Vec<[f64; DIM]>) {
+        self.prev_derivatives = derivatives;
+    }
+
     pub fn set_derivatives(&mut self, derivatives: Vec<[f64; DIM]>) {
         std::mem::swap(&mut self.prev_derivatives, &mut self.derivatives);
         self.derivatives = derivatives;
