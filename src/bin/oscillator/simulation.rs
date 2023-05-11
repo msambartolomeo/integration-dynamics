@@ -1,5 +1,5 @@
 use integration_dynamics::{
-    methods::{Beeman, Euler, EulerMod, GearPredictorCorrector, IntegrationMethod},
+    methods::{Beeman, Euler, EulerMod, GearPredictorCorrector, IntegrationMethod, Verlet},
     particle::Particle,
 };
 
@@ -31,6 +31,11 @@ impl Oscillator {
         let integration_method: Box<dyn IntegrationMethod<DIM>> = match integration_method {
             Integration::Euler => Box::new(Euler::new(acceleration_function)),
             Integration::EulerMod => Box::new(EulerMod::new(acceleration_function)),
+            Integration::Verlet => Box::new(Verlet::new(
+                acceleration_function,
+                &mut [&mut particle],
+                delta_t,
+            )),
             Integration::Beeman => Box::new(Beeman::new(
                 acceleration_function,
                 &mut [&mut particle],

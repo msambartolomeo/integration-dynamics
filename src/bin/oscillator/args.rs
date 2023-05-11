@@ -26,6 +26,7 @@ pub struct Cli {
 pub enum Integration {
     Euler,
     EulerMod,
+    Verlet,
     Beeman,
     GearPredictorCorrector,
 }
