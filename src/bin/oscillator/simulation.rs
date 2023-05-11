@@ -1,5 +1,5 @@
 use integration_dynamics::{
-    methods::{Euler, EulerMod, IntegrationMethod},
+    methods::{Beeman, Euler, EulerMod, IntegrationMethod},
     particle::Particle,
 };
 
@@ -17,7 +17,7 @@ pub struct Oscillator {
 
 impl Oscillator {
     pub fn new(delta_t: f64, integration_method: Integration) -> Self {
-        let particle: Particle<DIM> = Particle::new(
+        let mut particle: Particle<DIM> = Particle::new(
             INITIAL_POSITION,
             INITIAL_VELOCITY,
             INITIAL_ACCELERATION,
@@ -28,6 +28,11 @@ impl Oscillator {
         let integration_method: Box<dyn IntegrationMethod<DIM>> = match integration_method {
             Integration::Euler => Box::new(Euler::new(acceleration_function)),
             Integration::EulerMod => Box::new(EulerMod::new(acceleration_function)),
+            Integration::Beeman => Box::new(Beeman::new(
+                acceleration_function,
+                &mut [&mut particle],
+                delta_t,
+            )),
         };
 
         Self {
