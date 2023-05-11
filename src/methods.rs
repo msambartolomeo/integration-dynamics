@@ -2,6 +2,11 @@ use crate::particle::Particle;
 
 pub trait IntegrationMethod<const DIM: usize> {
     fn calculate_step(&self, particle: &mut Particle<DIM>, delta_t: f64) -> Vec<[f64; DIM]>;
+    fn advance_step(&self, particle: &mut Particle<DIM>, delta_t: f64) {
+        let derivatives = self.calculate_step(particle, delta_t);
+        let old = particle.set_derivatives(derivatives);
+        particle.set_prev_derivatives(old);
+    }
 }
 
 pub struct Euler<const DIM: usize> {
@@ -126,6 +131,19 @@ impl<const DIM: usize> VerletLeapFrog<DIM> {
             acceleration_function,
         }
     }
+
+    fn get_v_half_step(&self, particle: &Particle<DIM>, delta_t: f64) -> [f64; DIM] {
+        let r = particle.derivatives();
+        let old_r = particle.prev_derivatives();
+
+        let mut v_half_step = [0.0; DIM];
+
+        for i in 0..DIM {
+            v_half_step[i] = old_r[1][i] + delta_t * r[2][i];
+        }
+
+        v_half_step
+    }
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for VerletLeapFrog<DIM> {
@@ -134,17 +152,26 @@ impl<const DIM: usize> IntegrationMethod<DIM> for VerletLeapFrog<DIM> {
         let old_r = particle.prev_derivatives();
         let mut new_r = particle.cloned_derivatives();
 
+        let v_half_step = self.get_v_half_step(&particle, delta_t);
+
         for i in 0..DIM {
-            let v_half_step = old_r[1][i] + delta_t * r[2][i];
+            new_r[0][i] += delta_t * v_half_step[i];
 
-            new_r[0][i] += delta_t * v_half_step;
-
-            new_r[1][i] = (old_r[1][i] - v_half_step) / 2.0;
+            new_r[1][i] = (old_r[1][i] - v_half_step[i]) / 2.0;
         }
 
         new_r[2] = (self.acceleration_function)(&new_r[0], &new_r[1], particle.mass());
 
         new_r
+    }
+
+    fn advance_step(&self, particle: &mut Particle<DIM>, delta_t: f64) {
+        let derivatives = self.calculate_step(particle, delta_t);
+        let mut old = particle.set_derivatives(derivatives);
+
+        // NOTE: Use v(t + delta_t/2) for previous instead of v(t)
+        old[1] = self.get_v_half_step(&particle, delta_t);
+        particle.set_prev_derivatives(old);
     }
 }
 

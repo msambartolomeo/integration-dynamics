@@ -1,5 +1,3 @@
-use std::vec;
-
 #[derive(Debug, PartialEq)]
 pub struct Particle<const DIM: usize> {
     derivatives: Vec<[f64; DIM]>,
@@ -13,7 +11,7 @@ impl<const DIM: usize> Particle<DIM> {
     pub fn new(r: [f64; DIM], v: [f64; DIM], a: [f64; DIM], radius: f64, mass: f64) -> Self {
         Self {
             derivatives: vec![r, v, a],
-            prev_derivatives: vec![],
+            prev_derivatives: vec![r, v, a],
             radius,
             mass,
         }
@@ -31,27 +29,6 @@ impl<const DIM: usize> Particle<DIM> {
         &self.derivatives
     }
 
-    pub fn prev_derivatives(&self) -> &Vec<[f64; DIM]> {
-        &self.prev_derivatives
-    }
-
-    pub fn set_prev_derivatives(&mut self, derivatives: Vec<[f64; DIM]>) {
-        self.prev_derivatives = derivatives;
-    }
-
-    pub fn set_derivatives(&mut self, derivatives: Vec<[f64; DIM]>) {
-        std::mem::swap(&mut self.prev_derivatives, &mut self.derivatives);
-        self.derivatives = derivatives;
-    }
-
-    pub fn cloned_derivatives(&self) -> Vec<[f64; DIM]> {
-        self.derivatives.clone()
-    }
-
-    pub fn add_derivative(&mut self, derivative: [f64; DIM]) {
-        self.derivatives.push(derivative);
-    }
-
     pub fn get_distance(&self, other: &Self) -> f64 {
         let mut distance = 0.0;
 
@@ -60,5 +37,25 @@ impl<const DIM: usize> Particle<DIM> {
         }
 
         distance.sqrt()
+    }
+
+    pub(crate) fn prev_derivatives(&self) -> &Vec<[f64; DIM]> {
+        &self.prev_derivatives
+    }
+
+    pub(crate) fn set_prev_derivatives(&mut self, derivatives: Vec<[f64; DIM]>) {
+        self.prev_derivatives = derivatives;
+    }
+
+    pub(crate) fn set_derivatives(&mut self, derivatives: Vec<[f64; DIM]>) -> Vec<[f64; DIM]> {
+        std::mem::replace(&mut self.derivatives, derivatives)
+    }
+
+    pub(crate) fn cloned_derivatives(&self) -> Vec<[f64; DIM]> {
+        self.derivatives.clone()
+    }
+
+    pub(crate) fn add_derivative(&mut self, derivative: [f64; DIM]) {
+        self.derivatives.push(derivative);
     }
 }
