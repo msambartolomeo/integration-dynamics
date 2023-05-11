@@ -1,6 +1,7 @@
 use integration_dynamics::{
     methods::{Beeman, Euler, EulerMod, GearPredictorCorrector, IntegrationMethod, Verlet},
     particle::Particle,
+    Integration,
 };
 
 use crate::constants::{
@@ -8,8 +9,6 @@ use crate::constants::{
     BALL_SPACING_RANGE, DIM, TABLE_WIDTH,
 };
 use rand::Rng;
-
-use crate::args::Integration;
 
 pub struct Billiards {
     balls: Vec<Option<Particle<DIM>>>,
@@ -71,8 +70,8 @@ impl Billiards {
         }
 
         let integration_method: Box<dyn IntegrationMethod<DIM>> = match integration_method {
-            Integration::Euler => Box::new(Euler::new(acceleration_function)),
-            Integration::EulerMod => Box::new(EulerMod::new(acceleration_function)),
+            Integration::Euler => Box::new(Euler::new(acceleration_function, delta_t)),
+            Integration::EulerMod => Box::new(EulerMod::new(acceleration_function, delta_t)),
             Integration::Verlet => Box::new(Verlet::new(
                 acceleration_function,
                 &mut balls.iter_mut().flatten().collect::<Vec<_>>(),
@@ -83,15 +82,19 @@ impl Billiards {
                 &mut balls.iter_mut().flatten().collect::<Vec<_>>(),
                 delta_t,
             )),
-            // Integration::GearPredictorCorrector => {
-            //     let particles_to_init = vec![(&mut ball, vec![[0.0; DIM], [0.0; DIM], [0.0; DIM]])];
-            //     Box::new(GearPredictorCorrector::new(
-            //         acceleration_function,
-            //         true,
-            //         particles_to_init,
-            //     ))
-            // }
-            _ => todo!("Not implemented"),
+            Integration::GearPredictorCorrector => {
+                let particles_to_init = balls
+                    .iter_mut()
+                    .flatten()
+                    .map(|b| (b, vec![[0.0; DIM], [0.0; DIM], [0.0; DIM]]))
+                    .collect();
+                Box::new(GearPredictorCorrector::new(
+                    acceleration_function,
+                    false,
+                    particles_to_init,
+                    delta_t,
+                ))
+            }
         };
 
         Self {

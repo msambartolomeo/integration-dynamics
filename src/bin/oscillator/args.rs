@@ -1,4 +1,5 @@
-use clap::{Parser, ValueEnum};
+use clap::Parser;
+use integration_dynamics::Integration;
 
 #[derive(Parser, Debug)]
 #[command(name = "Oscillation Integration", author, version, about)]
@@ -20,13 +21,4 @@ pub struct Cli {
 
     #[arg(short, long, default_value_t = String::from("./oscillator.txt"))]
     pub data_output_path: String,
-}
-
-#[derive(ValueEnum, Clone, Debug)]
-pub enum Integration {
-    Euler,
-    EulerMod,
-    Verlet,
-    Beeman,
-    GearPredictorCorrector,
 }

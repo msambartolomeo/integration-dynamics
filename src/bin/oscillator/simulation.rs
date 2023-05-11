@@ -1,21 +1,18 @@
 use integration_dynamics::{
     methods::{Beeman, Euler, EulerMod, GearPredictorCorrector, IntegrationMethod, Verlet},
     particle::Particle,
+    Integration,
 };
 
 use crate::constants::{
-    acceleration_function, DIM, INITIAL_ACCELERATION, INITIAL_POSITION, INITIAL_VELOCITY,
+    acceleration_function, DIM, INITIAL_ACCELERATION, INITIAL_FIFTH_DERIVATIVE,
+    INITIAL_FOURTH_DERIVATIVE, INITIAL_POSITION, INITIAL_THIRD_DERIVATIVE, INITIAL_VELOCITY,
     PARTICLE_MASS,
-};
-use crate::{
-    args::Integration,
-    constants::{INITIAL_FIFTH_DERIVATIVE, INITIAL_FOURTH_DERIVATIVE, INITIAL_THIRD_DERIVATIVE},
 };
 
 pub struct Oscillator {
-    pub particle: Particle<DIM>,
-    pub integration_method: Box<dyn IntegrationMethod<DIM>>,
-    pub delta_t: f64,
+    particle: Particle<DIM>,
+    integration_method: Box<dyn IntegrationMethod<DIM>>,
 }
 
 impl Oscillator {
@@ -29,8 +26,8 @@ impl Oscillator {
         );
 
         let integration_method: Box<dyn IntegrationMethod<DIM>> = match integration_method {
-            Integration::Euler => Box::new(Euler::new(acceleration_function)),
-            Integration::EulerMod => Box::new(EulerMod::new(acceleration_function)),
+            Integration::Euler => Box::new(Euler::new(acceleration_function, delta_t)),
+            Integration::EulerMod => Box::new(EulerMod::new(acceleration_function, delta_t)),
             Integration::Verlet => Box::new(Verlet::new(
                 acceleration_function,
                 &mut [&mut particle],
@@ -54,6 +51,7 @@ impl Oscillator {
                     acceleration_function,
                     true,
                     particles_to_init,
+                    delta_t,
                 ))
             }
         };
@@ -61,14 +59,12 @@ impl Oscillator {
         Self {
             particle,
             integration_method,
-            delta_t,
         }
     }
 
     pub fn run(&mut self, steps: usize) -> &[[f64; DIM]] {
         for _ in 0..steps {
-            self.integration_method
-                .advance_step(&mut self.particle, self.delta_t);
+            self.integration_method.advance_step(&mut self.particle);
         }
 
         self.particle.derivatives()
