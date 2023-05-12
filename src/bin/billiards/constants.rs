@@ -105,15 +105,18 @@ const Y_COORDINATES_PER_ROW: [[Option<f64>; 5]; 5] = [
     ],
 ];
 
-pub fn acceleration_function(particle: &Particle<DIM>, others: &[Particle<DIM>]) -> [f64; DIM] {
-    let pos = particle.derivatives()[0];
-    let mut acceleration = [0.0; DIM];
+const DIMENSION_MAX_LENGHTS: [f64; DIM] = [TABLE_LENGTH, TABLE_WIDTH];
 
+pub fn acceleration_function(particle: &Particle<DIM>, others: &[Particle<DIM>]) -> [f64; DIM] {
+    let derivatives = particle.derivatives();
+    let mut forces = [0.0; DIM];
+
+    // Add particle collisions
     for other in others {
         let other_pos = other.derivatives()[0];
         let mut delta_r = [0.0; DIM];
         for i in 0..DIM {
-            delta_r[i] = other_pos[i] - pos[i];
+            delta_r[i] = other_pos[i] - derivatives[0][i];
         }
 
         let euclidean_distance = delta_r.iter().map(|x| x.powi(2)).sum::<f64>().sqrt();
@@ -124,7 +127,7 @@ pub fn acceleration_function(particle: &Particle<DIM>, others: &[Particle<DIM>])
         }
 
         for i in 0..DIM {
-            acceleration[i] += RESTORING_FORCE_CONSTANT
+            forces[i] += RESTORING_FORCE_CONSTANT
                 // Distance between centers minus the sum of the radii
                 * (euclidean_distance - radius_sum)
                 // Unit vector in the direction of the other particle
@@ -132,5 +135,18 @@ pub fn acceleration_function(particle: &Particle<DIM>, others: &[Particle<DIM>])
         }
     }
 
-    acceleration
+    // Add wall collisions
+    for i in 0..DIM {
+        // Left and bottom walls
+        if derivatives[0][i] <= particle.radius() {
+            forces[i] += RESTORING_FORCE_CONSTANT * (particle.radius() - derivatives[0][0]);
+        }
+        // Right and top walls
+        else if derivatives[0][i] >= DIMENSION_MAX_LENGHTS[i] - particle.radius() {
+            forces[i] += RESTORING_FORCE_CONSTANT
+                * (DIMENSION_MAX_LENGHTS[i] - particle.radius() - derivatives[0][0]);
+        }
+    }
+
+    forces.map(|f| f / particle.mass())
 }
