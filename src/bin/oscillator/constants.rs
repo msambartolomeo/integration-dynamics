@@ -1,3 +1,5 @@
+use integration_dynamics::particle::Particle;
+
 pub const DIM: usize = 1;
 
 pub const PARTICLE_MASS: f64 = 70.0;
@@ -24,11 +26,13 @@ pub const INITIAL_FIFTH_DERIVATIVE: [f64; DIM] = [(-RESTORING_FORCE_CONSTANT
     - AMORTIGUATION_CONSTANT * INITIAL_FOURTH_DERIVATIVE[0])
     / PARTICLE_MASS];
 
-pub fn acceleration_function(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM] {
+pub fn acceleration_function(particle: &Particle<DIM>, _others: &[Particle<DIM>]) -> [f64; DIM] {
     let mut acceleration = [0.0; DIM];
+    let r = particle.derivatives();
 
     for i in 0..DIM {
-        acceleration[i] = (-RESTORING_FORCE_CONSTANT * r[i] - AMORTIGUATION_CONSTANT * v[i]) / mass;
+        acceleration[i] = (-RESTORING_FORCE_CONSTANT * r[0][i] - AMORTIGUATION_CONSTANT * r[1][i])
+            / particle.mass();
     }
 
     acceleration

@@ -37,8 +37,10 @@ impl Billiards {
         };
 
         let mut balls = Vec::with_capacity(BALL_COUNT);
+        let mut ball_id = 0;
 
         let white_ball = Particle::new(
+            ball_id,
             [TABLE_WIDTH / 2.0, TABLE_WIDTH / 2.0 + white_offset],
             [0.0, initial_velocity],
             [0.0, 0.0],
@@ -51,7 +53,9 @@ impl Billiards {
         for (x, y) in constants::get_balls_starting_position() {
             let x_spacing = get_ball_spacing();
             let y_spacing = get_ball_spacing();
+            ball_id += 1;
             let ball = Particle::new(
+                ball_id,
                 [x + x_spacing, y + y_spacing],
                 [0.0, 0.0],
                 [0.0, 0.0],
@@ -114,5 +118,9 @@ impl Billiards {
             balls,
             integration_method,
         }
+    }
+
+    pub fn run(steps: usize) {
+        todo!()
     }
 }

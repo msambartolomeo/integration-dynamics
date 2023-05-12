@@ -14,13 +14,14 @@ use crate::constants::{
 };
 
 pub struct Oscillator {
-    particle: Particle<DIM>,
+    particle: [Particle<DIM>; 1],
     integration_method: Box<dyn IntegrationMethod<DIM>>,
 }
 
 impl Oscillator {
     pub fn new(delta_t: f64, integration_method: &Integration) -> Self {
-        let mut particle: Particle<DIM> = Particle::new(
+        let particle: Particle<DIM> = Particle::new(
+            0,
             INITIAL_POSITION,
             INITIAL_VELOCITY,
             INITIAL_ACCELERATION,
@@ -28,22 +29,19 @@ impl Oscillator {
             PARTICLE_MASS,
         );
 
+        let mut particle = [particle];
         let integration_method: Box<dyn IntegrationMethod<DIM>> = match integration_method {
             Integration::Euler => Box::new(Euler::new(acceleration_function, delta_t)),
             Integration::EulerMod => Box::new(EulerMod::new(acceleration_function, delta_t)),
-            Integration::Verlet => Box::new(Verlet::new(
-                acceleration_function,
-                &mut [&mut particle],
-                delta_t,
-            )),
-            Integration::Beeman => Box::new(Beeman::new(
-                acceleration_function,
-                &mut [&mut particle],
-                delta_t,
-            )),
+            Integration::Verlet => {
+                Box::new(Verlet::new(acceleration_function, &mut particle, delta_t))
+            }
+            Integration::Beeman => {
+                Box::new(Beeman::new(acceleration_function, &mut particle, delta_t))
+            }
             Integration::GearPredictorCorrector => {
                 let particles_to_init = vec![(
-                    &mut particle,
+                    &mut particle[0],
                     vec![
                         INITIAL_THIRD_DERIVATIVE,
                         INITIAL_FOURTH_DERIVATIVE,
@@ -59,7 +57,7 @@ impl Oscillator {
             }
             Integration::VerletLeapFrog => Box::new(VerletLeapFrog::new(
                 acceleration_function,
-                &mut [&mut particle],
+                &mut particle,
                 delta_t,
             )),
             Integration::VelocityVerlet => {
@@ -78,11 +76,9 @@ impl Oscillator {
 
     pub fn run(&mut self, steps: usize) -> &[[f64; DIM]] {
         for _ in 0..steps {
-            let derivatives = self.integration_method.calculate_step(&self.particle);
-            self.integration_method
-                .advance_step(&mut self.particle, derivatives);
+            self.integration_method.advance_step(&mut self.particle);
         }
 
-        self.particle.derivatives()
+        self.particle[0].derivatives()
     }
 }
