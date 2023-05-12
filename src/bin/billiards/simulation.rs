@@ -48,7 +48,7 @@ impl Billiards {
             BALL_MASS,
         );
 
-        balls.push(Some(white_ball));
+        balls.push(white_ball);
 
         for (x, y) in constants::get_balls_starting_position() {
             let x_spacing = get_ball_spacing();
@@ -63,11 +63,11 @@ impl Billiards {
                 BALL_MASS,
             );
 
-            balls.push(Some(ball));
+            balls.push(ball);
         }
 
-        for ball in balls.iter().flatten() {
-            for other_ball in balls.iter().flatten() {
+        for ball in balls.iter() {
+            for other_ball in balls.iter() {
                 if ball != other_ball {
                     let distance = ball.get_distance(other_ball);
                     assert!(BALL_SPACING_LOWER_BOUND <= distance);
@@ -78,20 +78,15 @@ impl Billiards {
         let integration_method: Box<dyn IntegrationMethod<DIM>> = match integration_method {
             Integration::Euler => Box::new(Euler::new(acceleration_function, delta_t)),
             Integration::EulerMod => Box::new(EulerMod::new(acceleration_function, delta_t)),
-            Integration::Verlet => Box::new(Verlet::new(
-                acceleration_function,
-                &mut balls.iter_mut().flatten().collect::<Vec<_>>(),
-                delta_t,
-            )),
-            Integration::Beeman => Box::new(Beeman::new(
-                acceleration_function,
-                &mut balls.iter_mut().flatten().collect::<Vec<_>>(),
-                delta_t,
-            )),
+            Integration::Verlet => {
+                Box::new(Verlet::new(acceleration_function, &mut balls, delta_t))
+            }
+            Integration::Beeman => {
+                Box::new(Beeman::new(acceleration_function, &mut balls, delta_t))
+            }
             Integration::GearPredictorCorrector => {
                 let particles_to_init = balls
                     .iter_mut()
-                    .flatten()
                     .map(|b| (b, vec![[0.0; DIM], [0.0; DIM], [0.0; DIM]]))
                     .collect();
                 Box::new(GearPredictorCorrector::new(
@@ -103,7 +98,7 @@ impl Billiards {
             }
             Integration::VerletLeapFrog => Box::new(VerletLeapFrog::new(
                 acceleration_function,
-                &mut balls.iter_mut().flatten().collect::<Vec<_>>(),
+                &mut balls,
                 delta_t,
             )),
             Integration::VelocityVerlet => {
@@ -113,6 +108,8 @@ impl Billiards {
                 Box::new(EulerPredictorCorrector::new(acceleration_function, delta_t))
             }
         };
+
+        let balls = balls.into_iter().map(Some).collect();
 
         Self {
             balls,
