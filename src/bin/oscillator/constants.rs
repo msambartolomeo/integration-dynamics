@@ -28,7 +28,7 @@ pub fn acceleration_function(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64;
     let mut acceleration = [0.0; DIM];
 
     for i in 0..DIM {
-        acceleration[i] = -RESTORING_FORCE_CONSTANT * r[i] - AMORTIGUATION_CONSTANT * v[i] / mass;
+        acceleration[i] = (-RESTORING_FORCE_CONSTANT * r[i] - AMORTIGUATION_CONSTANT * v[i]) / mass;
     }
 
     acceleration
