@@ -1,6 +1,9 @@
 use std::ops::RangeInclusive;
 
+use integration_dynamics::particle::Particle;
+
 pub const DIM: usize = 2;
+const RESTORING_FORCE_CONSTANT: f64 = 1e4;
 
 pub const TABLE_WIDTH: f64 = 1.12;
 pub const TABLE_LENGTH: f64 = 2.24;
@@ -102,11 +105,31 @@ const Y_COORDINATES_PER_ROW: [[Option<f64>; 5]; 5] = [
     ],
 ];
 
-pub fn acceleration_function(r: &[f64; DIM], _v: &[f64; DIM], mass: f64) -> [f64; DIM] {
+pub fn acceleration_function(particle: &Particle<DIM>, others: &[Particle<DIM>]) -> [f64; DIM] {
+    let pos = particle.derivatives()[0];
     let mut acceleration = [0.0; DIM];
 
-    for i in 0..DIM {
-        acceleration[i] = 3.0; // TODO: Implement acceleration function
+    for other in others {
+        let other_pos = other.derivatives()[0];
+        let mut delta_r = [0.0; DIM];
+        for i in 0..DIM {
+            delta_r[i] = other_pos[i] - pos[i];
+        }
+
+        let euclidean_distance = delta_r.iter().map(|x| x.powi(2)).sum::<f64>().sqrt();
+
+        let radius_sum = particle.radius() + other.radius();
+        if radius_sum < euclidean_distance {
+            continue;
+        }
+
+        for i in 0..DIM {
+            acceleration[i] += RESTORING_FORCE_CONSTANT
+                // Distance between centers minus the sum of the radii
+                * (euclidean_distance - radius_sum)
+                // Unit vector in the direction of the other particle
+                * (delta_r[i] / euclidean_distance);
+        }
     }
 
     acceleration
