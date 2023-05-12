@@ -52,23 +52,28 @@ def plot():
     plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({"font.size": 16})
     plt.ylabel("Error cuádratico medio")
-    plt.xlabel("Metodo de integración")
+    plt.xlabel("Delta t (s)")
+    plt.xscale("log")
     plt.yscale("log")
 
-    errors = []
     for method in data:
-        dif = data[method]["numeric"] - data[method]["analytic"]
-        error = np.average(dif**2)
-        errors.append(error)
+        deltas = []
+        errors = []
+        for delta_t in data[method]:
+            deltas.append(delta_t)
 
-    labels = [l.split("-") for l in data.keys()]
-    labels = ["\n".join(l) for l in labels]
-    plt.bar(labels, errors)
+            dif = data[method][delta_t]["numeric"] - data[method][delta_t]["analytic"]
+            error = np.average(dif**2)
+            errors.append(error)
 
-    plt.subplots_adjust(bottom=0.2)
-    # Scientific notation
-    # plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+        plt.plot(
+            deltas,
+            errors,
+            "-o",
+            label=method,
+        )
 
+    plt.legend()
     fig.savefig(RESULTS_PATH + "error_values.png")
 
     plt.show()
