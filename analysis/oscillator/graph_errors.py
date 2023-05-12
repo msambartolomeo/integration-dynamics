@@ -76,6 +76,28 @@ def plot():
     plt.legend()
     fig.savefig(RESULTS_PATH + "error_values.png")
 
+    analytic = data["euler"][0.0001]["analytic"]
+    times = data["euler"][0.0001]["times"]
+
+    protector = data["gear-predictor-corrector"][0.0001]["numeric"]
+    verletto = data["verlet"][0.0001]["numeric"]
+    beemovie = data["beeman"][0.0001]["numeric"]
+
+    # Plot curves values
+    fig = plt.figure(figsize=(1280 / 108, 720 / 108), dpi=108)
+    plt.rcParams["font.family"] = "serif"
+    plt.rcParams.update({"font.size": 16})
+    plt.xlabel("Tiempo transcurrido (s)")
+    plt.ylabel("Posición del oscilador (m)")
+
+    plt.plot(times, analytic, label="Analítica")
+    plt.plot(times, protector, label="Gear Predictor Corrector")
+    plt.plot(times, verletto, label="Verlet")
+    plt.plot(times, beemovie, label="Beeman")
+
+    plt.legend()
+    fig.savefig(RESULTS_PATH + "values.png")
+
     plt.show()
 
 
