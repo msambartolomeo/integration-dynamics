@@ -56,7 +56,11 @@ def plot():
         error = np.average(dif ** 2)
         errors.append(error)
 
-    plt.bar(data.keys(), errors)
+    labels = [l.split('-') for l in data.keys()]
+    labels = ['\n'.join(l) for l in labels]
+    plt.bar(labels, errors)
+
+    plt.subplots_adjust(bottom=0.2)
     # Scientific notation
     # plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 

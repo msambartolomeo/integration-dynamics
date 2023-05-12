@@ -1,5 +1,8 @@
 use integration_dynamics::{
-    methods::{Beeman, Euler, EulerMod, GearPredictorCorrector, IntegrationMethod, Verlet},
+    methods::{
+        Beeman, Euler, EulerMod, EulerPredictorCorrector, GearPredictorCorrector,
+        IntegrationMethod, VelocityVerlet, Verlet, VerletLeapFrog,
+    },
     particle::Particle,
     Integration,
 };
@@ -93,6 +96,17 @@ impl Billiards {
                     particles_to_init,
                     delta_t,
                 ))
+            }
+            Integration::VerletLeapFrog => Box::new(VerletLeapFrog::new(
+                acceleration_function,
+                &mut balls.iter_mut().flatten().collect::<Vec<_>>(),
+                delta_t,
+            )),
+            Integration::VelocityVerlet => {
+                Box::new(VelocityVerlet::new(acceleration_function, delta_t))
+            }
+            Integration::EulerPredictorCorrector => {
+                Box::new(EulerPredictorCorrector::new(acceleration_function, delta_t))
             }
         };
 

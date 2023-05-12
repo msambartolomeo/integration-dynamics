@@ -8,6 +8,9 @@ pub enum Integration {
     Euler,
     EulerMod,
     Verlet,
+    VerletLeapFrog,
+    VelocityVerlet,
     Beeman,
+    EulerPredictorCorrector,
     GearPredictorCorrector,
 }

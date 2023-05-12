@@ -4,8 +4,8 @@ import subprocess
 import numpy as np
 
 
-METHODS = ['euler', 'euler-mod', 'beeman',
-           'gear-predictor-corrector', 'verlet']
+METHODS = ['euler', 'euler-mod', 'verlet', 'verlet-leap-frog', 'velocity-verlet',
+           'beeman', 'euler-predictor-corrector', 'gear-predictor-corrector']
 
 RUNS_PER_POS = 200
 
