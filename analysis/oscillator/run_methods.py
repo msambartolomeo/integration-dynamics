@@ -1,11 +1,16 @@
 import os
 import subprocess
 
-import numpy as np
-
-
-METHODS = ['euler', 'euler-mod', 'verlet', 'verlet-leap-frog', 'velocity-verlet',
-           'beeman', 'euler-predictor-corrector', 'gear-predictor-corrector']
+METHODS = [
+    "euler",
+    "euler-mod",
+    "verlet",
+    "verlet-leap-frog",
+    "velocity-verlet",
+    "beeman",
+    "euler-predictor-corrector",
+    "gear-predictor-corrector",
+]
 
 RUNS_PER_POS = 200
 
@@ -14,7 +19,6 @@ RESULTS_PATH = "./analysis/oscillator/data/methods/"
 
 
 def main():
-
     os.makedirs(RESULTS_PATH, exist_ok=True)
     for method in METHODS:
         subprocess.run(
