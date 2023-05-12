@@ -261,6 +261,47 @@ impl<const DIM: usize> IntegrationMethod<DIM> for Beeman<DIM> {
     }
 }
 
+pub struct EulerPredictorCorrector<const DIM: usize> {
+    acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
+    delta_t: f64,
+}
+
+impl<const DIM: usize> EulerPredictorCorrector<DIM> {
+    pub fn new(
+        acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
+        delta_t: f64,
+    ) -> Self {
+        Self {
+            acceleration_function,
+            delta_t,
+        }
+    }
+}
+
+impl<const DIM: usize> IntegrationMethod<DIM> for EulerPredictorCorrector<DIM> {
+    fn calculate_step(&self, particle: &mut Particle<DIM>) -> Vec<[f64; DIM]> {
+        let r = particle.derivatives();
+        let mut new_r = particle.cloned_derivatives();
+
+        // Predict
+        for i in 0..DIM {
+            new_r[1][i] += r[2][i] * self.delta_t;
+            new_r[0][i] += r[1][i] * self.delta_t;
+        }
+
+        // Evalate
+        new_r[2] = (self.acceleration_function)(&new_r[0], &new_r[1], particle.mass());
+
+        // Correct
+        for i in 0..DIM {
+            new_r[1][i] = r[1][i] + new_r[2][i] * self.delta_t;
+            new_r[0][i] = r[0][i] + new_r[1][i] * self.delta_t;
+        }
+
+        new_r
+    }
+}
+
 pub struct GearPredictorCorrector<const DIM: usize> {
     acceleration_function: fn(r: &[f64; DIM], v: &[f64; DIM], mass: f64) -> [f64; DIM],
     acceleration_function_depends_on_velocity: bool,
