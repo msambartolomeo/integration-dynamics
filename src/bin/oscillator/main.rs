@@ -22,12 +22,11 @@ fn main() -> Result<()> {
     let mut steps = Vec::new();
     let mut data = Vec::new();
 
-    for i in 0..output_iters {
-        let time = i as f64 * args.output_delta_t;
-
+    for i in 1..=output_iters {
         let r = simulation.run(simulation_iters);
-
         let numeric_position = r[0][0];
+
+        let time = i as f64 * args.output_delta_t;
         let analitic_position = analytic_solution(time);
 
         steps.push((r[0][0], r[1][0]));
