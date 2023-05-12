@@ -1,9 +1,8 @@
 use crate::particle::Particle;
 
 pub trait IntegrationMethod<const DIM: usize> {
-    fn calculate_step(&self, particle: &mut Particle<DIM>) -> Vec<[f64; DIM]>;
-    fn advance_step(&self, particle: &mut Particle<DIM>) {
-        let derivatives = self.calculate_step(particle);
+    fn calculate_step(&self, particle: &Particle<DIM>) -> Vec<[f64; DIM]>;
+    fn advance_step(&self, particle: &mut Particle<DIM>, derivatives: Vec<[f64; DIM]>) {
         let old = particle.set_derivatives(derivatives);
         particle.set_prev_derivatives(old);
     }
@@ -27,7 +26,7 @@ impl<const DIM: usize> Euler<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for Euler<DIM> {
-    fn calculate_step(&self, particle: &mut Particle<DIM>) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &Particle<DIM>) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let mut new_r = particle.cloned_derivatives();
 
@@ -59,7 +58,7 @@ impl<const DIM: usize> EulerMod<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for EulerMod<DIM> {
-    fn calculate_step(&self, particle: &mut Particle<DIM>) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &Particle<DIM>) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let mut new_r = particle.cloned_derivatives();
 
@@ -100,7 +99,7 @@ impl<const DIM: usize> Verlet<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for Verlet<DIM> {
-    fn calculate_step(&self, particle: &mut Particle<DIM>) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &Particle<DIM>) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let old_r = particle.prev_derivatives();
         let mut new_r = particle.cloned_derivatives();
@@ -157,7 +156,7 @@ impl<const DIM: usize> VerletLeapFrog<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for VerletLeapFrog<DIM> {
-    fn calculate_step(&self, particle: &mut Particle<DIM>) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &Particle<DIM>) -> Vec<[f64; DIM]> {
         let old_r = particle.prev_derivatives();
         let mut new_r = particle.cloned_derivatives();
 
@@ -174,8 +173,7 @@ impl<const DIM: usize> IntegrationMethod<DIM> for VerletLeapFrog<DIM> {
         new_r
     }
 
-    fn advance_step(&self, particle: &mut Particle<DIM>) {
-        let derivatives = self.calculate_step(particle);
+    fn advance_step(&self, particle: &mut Particle<DIM>, derivatives: Vec<[f64; DIM]>) {
         let mut old = particle.set_derivatives(derivatives);
 
         // NOTE: Use v(t + delta_t/2) for previous instead of v(t)
@@ -202,7 +200,7 @@ impl<const DIM: usize> VelocityVerlet<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for VelocityVerlet<DIM> {
-    fn calculate_step(&self, particle: &mut Particle<DIM>) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &Particle<DIM>) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let mut new_r = particle.cloned_derivatives();
 
@@ -242,7 +240,7 @@ impl<const DIM: usize> Beeman<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for Beeman<DIM> {
-    fn calculate_step(&self, particle: &mut Particle<DIM>) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &Particle<DIM>) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let old_r = particle.prev_derivatives();
         let mut new_r = particle.cloned_derivatives();
@@ -279,7 +277,7 @@ impl<const DIM: usize> EulerPredictorCorrector<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for EulerPredictorCorrector<DIM> {
-    fn calculate_step(&self, particle: &mut Particle<DIM>) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &Particle<DIM>) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
         let mut new_r = particle.cloned_derivatives();
 
@@ -330,7 +328,7 @@ impl<const DIM: usize> GearPredictorCorrector<DIM> {
 }
 
 impl<const DIM: usize> IntegrationMethod<DIM> for GearPredictorCorrector<DIM> {
-    fn calculate_step(&self, particle: &mut Particle<DIM>) -> Vec<[f64; DIM]> {
+    fn calculate_step(&self, particle: &Particle<DIM>) -> Vec<[f64; DIM]> {
         let r = particle.derivatives();
 
         // Predict

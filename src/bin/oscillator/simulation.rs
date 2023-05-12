@@ -78,7 +78,9 @@ impl Oscillator {
 
     pub fn run(&mut self, steps: usize) -> &[[f64; DIM]] {
         for _ in 0..steps {
-            self.integration_method.advance_step(&mut self.particle);
+            let derivatives = self.integration_method.calculate_step(&self.particle);
+            self.integration_method
+                .advance_step(&mut self.particle, derivatives);
         }
 
         self.particle.derivatives()

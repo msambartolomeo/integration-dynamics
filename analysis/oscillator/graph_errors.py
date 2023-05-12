@@ -11,32 +11,35 @@ DIR = "./analysis/oscillator/data/methods/"
 def read_method_data():
     data_per_method = {}
 
-    for file in os.listdir(DIR):
-        if file.endswith(".txt"):
-            # remove extension
-            method, _ = os.path.splitext(file)
+    for method in os.listdir(DIR):
+        data_per_method[method] = {}
+        for file in os.listdir(DIR + method):
+            if file.endswith(".txt"):
+                # remove extension
+                delta_t, _ = os.path.splitext(file)
+                delta_t = float(delta_t)
 
-            # Read the file and get the times
-            with open(DIR + file, "r") as f:
-                times = []
-                numerics = []
-                analytics = []
+                # Read the file and get the times
+                with open(DIR + method + "/" + file, "r") as f:
+                    times = []
+                    numerics = []
+                    analytics = []
 
-                for line in f:
-                    splits = line.split(" ")
+                    for line in f:
+                        splits = line.split(" ")
 
-                    times.append(float(splits[0]))
-                    numerics.append(float(splits[1]))
-                    analytics.append(float(splits[2]))
+                        times.append(float(splits[0]))
+                        numerics.append(float(splits[1]))
+                        analytics.append(float(splits[2]))
 
-                data = {
-                    "times": np.array(times),
-                    "numeric": np.array(numerics),
-                    "analytic": np.array(analytics),
-                }
+                    data = {
+                        "times": np.array(times),
+                        "numeric": np.array(numerics),
+                        "analytic": np.array(analytics),
+                    }
 
-                # Add the data to the dict
-                data_per_method[method] = data
+                    # Add the data to the dict
+                    data_per_method[method][delta_t] = data
 
     return data_per_method
 
