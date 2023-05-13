@@ -28,8 +28,6 @@ pub const HOLE_VARIANTS: [Hole; 6] = [
     Hole::TopRight,
 ];
 
-pub const WALL_VARIANTS: [Wall; 4] = [Wall::Top, Wall::Bottom, Wall::Left, Wall::Right];
-
 pub enum Hole {
     BottomLeft,
     BottomMiddle,
@@ -50,14 +48,6 @@ impl Hole {
             Hole::TopRight => [TABLE_LENGTH, TABLE_WIDTH],
         }
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Copy)]
-pub enum Wall {
-    Top,
-    Bottom,
-    Left,
-    Right,
 }
 
 pub fn get_balls_starting_position() -> Vec<(f64, f64)> {
