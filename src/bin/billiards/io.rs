@@ -104,7 +104,7 @@ pub fn output_simulation(
     // NOTE: Write the holes
     for hole in &HOLE_VARIANTS {
         let hole_coordinates = hole.coordinates();
-        let hole_radius = if include_holes { HOLE_RADIUS } else { 0.0 };
+        let hole_radius = if include_holes { HOLE_RADIUS } else { 0.001 };
 
         writeln!(
             writer,
