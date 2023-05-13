@@ -25,11 +25,11 @@ pub struct Cli {
     #[arg(short, long, default_value_t = 5e-2)]
     pub output_delta_t: f64,
 
-    #[arg(short, long, default_value_t = 100.0)]
-    pub max_time: f64,
+    #[arg(short, long)]
+    pub max_time: Option<f64>,
 
-    #[arg(short, long, default_value_t = String::from("./billiards.xyz"))]
-    pub xyz_output_path: String,
+    #[arg(short, long)]
+    pub xyz_output_path: Option<String>,
 
     #[arg(short, long)]
     pub data_output_path: Option<String>,

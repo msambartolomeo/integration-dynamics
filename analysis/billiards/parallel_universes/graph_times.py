@@ -7,7 +7,7 @@ RESULTS_PATH = "./analysis/oscillator/figs/"
 
 DIR = "./analysis/billiards/parallel_universes/data/"
 
-DELTAS = [0.001, 0.0001, 0.00001, 0.000001]
+DELTAS = [0.01, 0.001, 0.0001, 0.00001, 0.000001]
 BALL_COUNT = 16
 
 
@@ -68,11 +68,9 @@ def plot():
     plt.rcParams.update({"font.size": 16})
     plt.xlabel("Tiempo transcurrido (s)")
     plt.ylabel("Φ")
-
-    print(len(phis))
+    plt.yscale("log")
 
     for i, phi in enumerate(phis):
-        print(len(times), len(phi))
         plt.plot(times, phi, label=f"k={i + 3}")
 
     plt.legend()

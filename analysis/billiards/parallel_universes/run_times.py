@@ -21,6 +21,7 @@ def main():
                 str(delta_t),
                 "--output-delta-t",
                 "0.01",
+                "-m100",
             ]
         )
 
