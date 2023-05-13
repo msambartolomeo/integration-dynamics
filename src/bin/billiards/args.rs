@@ -7,6 +7,12 @@ pub struct Cli {
     #[arg(value_enum)]
     pub integration_method: Integration,
 
+    #[arg(short, long, default_value_t = false)]
+    pub fixed_spacing: bool,
+
+    #[arg(short, long, default_value_t = 0.0)]
+    pub white_offset: f64,
+
     #[arg(short, long, default_value_t = 1e-4)]
     pub simulation_delta_t: f64,
 
