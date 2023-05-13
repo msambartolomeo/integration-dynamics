@@ -22,7 +22,7 @@ pub struct Cli {
     #[arg(short, long, default_value_t = 1e-2)]
     pub output_delta_t: f64,
 
-    #[arg(short, long, default_value_t = 5.0)]
+    #[arg(short, long, default_value_t = 100.0)]
     pub max_time: f64,
 
     #[arg(short, long, default_value_t = String::from("./billiards.xyz"))]

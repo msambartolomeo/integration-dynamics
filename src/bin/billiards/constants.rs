@@ -5,7 +5,7 @@ use integration_dynamics::particle::Particle;
 pub const DIM: usize = 2;
 const RESTORING_FORCE_CONSTANT: f64 = 1e4;
 
-pub const INITIAL_WHITE_BALL_VELOCITY: [f64; DIM] = [0.1, 0.0];
+pub const INITIAL_WHITE_BALL_VELOCITY: [f64; DIM] = [1.0, 0.0];
 pub const TABLE_WIDTH: f64 = 1.12;
 pub const TABLE_LENGTH: f64 = 2.24;
 pub const BALL_COUNT: usize = 16;
