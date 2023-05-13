@@ -141,16 +141,15 @@ pub fn acceleration_function(particle: &Particle<DIM>, others: &[Particle<DIM>])
     }
 
     // Add wall collisions
-
     for i in 0..DIM {
         // Left and bottom walls
         if derivatives[0][i] <= particle.radius() {
-            forces[i] += RESTORING_FORCE_CONSTANT * (particle.radius() - derivatives[0][0]);
+            forces[i] += RESTORING_FORCE_CONSTANT * (particle.radius() - derivatives[0][i]);
         }
         // Right and top walls
         else if derivatives[0][i] >= DIMENSION_MAX_LENGHTS[i] - particle.radius() {
             forces[i] += RESTORING_FORCE_CONSTANT
-                * (DIMENSION_MAX_LENGHTS[i] - particle.radius() - derivatives[0][0]);
+                * (DIMENSION_MAX_LENGHTS[i] - particle.radius() - derivatives[0][i]);
         }
     }
 
