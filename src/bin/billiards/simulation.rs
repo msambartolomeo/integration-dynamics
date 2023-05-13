@@ -24,7 +24,7 @@ impl Billiards {
         integration_method: Integration,
         fixed_ball_spacing: bool,
         white_offset: f64,
-        initial_velocity: f64,
+        initial_velocity: [f64; DIM],
     ) -> Self {
         let mut rng = rand::thread_rng();
 
@@ -42,7 +42,7 @@ impl Billiards {
         let white_ball = Particle::new(
             ball_id,
             [TABLE_WIDTH / 2.0, TABLE_WIDTH / 2.0 + white_offset],
-            [0.0, initial_velocity],
+            initial_velocity,
             [0.0, 0.0],
             BALL_RADIUS,
             BALL_MASS,
@@ -132,12 +132,16 @@ impl Billiards {
         false
     }
 
-    pub fn run(&mut self, steps: usize) -> Vec<[f64; DIM]> {
+    pub fn run(&mut self, steps: usize) -> &Vec<Particle<DIM>> {
         for _ in 0..steps {
             self.integration_method.advance_step(&mut self.balls);
             self.balls
                 .retain(|particle| !Self::is_colliding_with_hole(particle));
         }
-        self.balls.iter().map(|b| b.derivatives()[0]).collect()
+        &self.balls
+    }
+
+    pub fn balls(&self) -> &Vec<Particle<DIM>> {
+        &self.balls
     }
 }

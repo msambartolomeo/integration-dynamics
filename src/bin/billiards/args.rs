@@ -4,6 +4,9 @@ use integration_dynamics::Integration;
 #[derive(Parser, Debug)]
 #[command(name = "Billiards Integration", author, version, about)]
 pub struct Cli {
+    #[arg(short, long, default_value_t = true)]
+    pub include_holes: bool,
+
     #[arg(value_enum)]
     pub integration_method: Integration,
 
