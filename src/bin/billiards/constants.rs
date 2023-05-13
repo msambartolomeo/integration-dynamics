@@ -114,6 +114,10 @@ pub fn acceleration_function(particle: &Particle<DIM>, others: &[Particle<DIM>])
 
     // Add particle collisions
     for other in others {
+        if particle.id() == other.id() {
+            continue;
+        }
+
         let other_pos = other.derivatives()[0];
         let mut delta_r = [0.0; DIM];
         for i in 0..DIM {
