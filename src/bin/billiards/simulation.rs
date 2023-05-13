@@ -16,6 +16,7 @@ use rand::Rng;
 pub struct Billiards {
     balls: Vec<Particle<DIM>>,
     integration_method: Box<dyn IntegrationMethod<DIM>>,
+    include_holes: bool,
 }
 
 impl Billiards {
@@ -25,6 +26,7 @@ impl Billiards {
         fixed_ball_spacing: bool,
         white_offset: f64,
         initial_velocity: [f64; DIM],
+        include_holes: bool,
     ) -> Self {
         let mut rng = rand::thread_rng();
 
@@ -112,6 +114,7 @@ impl Billiards {
         Self {
             balls,
             integration_method,
+            include_holes,
         }
     }
 
@@ -136,8 +139,10 @@ impl Billiards {
     pub fn run(&mut self, steps: usize) -> &Vec<Particle<DIM>> {
         for _ in 0..steps {
             self.integration_method.advance_step(&mut self.balls);
-            self.balls
-                .retain(|particle| !Self::is_colliding_with_hole(particle));
+            if self.include_holes {
+                self.balls
+                    .retain(|particle| !Self::is_colliding_with_hole(particle));
+            }
         }
         &self.balls
     }

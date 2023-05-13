@@ -4,8 +4,8 @@ use integration_dynamics::Integration;
 #[derive(Parser, Debug)]
 #[command(name = "Billiards Integration", author, version, about)]
 pub struct Cli {
-    #[arg(short, long, default_value_t = true)]
-    pub include_holes: bool,
+    #[arg(short, long)]
+    pub ignore_holes: bool,
 
     #[arg(value_enum)]
     pub integration_method: Integration,
@@ -19,7 +19,7 @@ pub struct Cli {
     #[arg(short, long, default_value_t = 1e-4)]
     pub simulation_delta_t: f64,
 
-    #[arg(short, long, default_value_t = 1e-2)]
+    #[arg(short, long, default_value_t = 5e-2)]
     pub output_delta_t: f64,
 
     #[arg(short, long, default_value_t = 100.0)]
