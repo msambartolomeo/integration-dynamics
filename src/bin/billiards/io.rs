@@ -1,11 +1,12 @@
-use anyhow::Result;
-use integration_dynamics::particle::Particle;
 use std::{
     fs::File,
     io::{BufWriter, Write},
 };
 
+use integration_dynamics::particle::Particle;
+
 use crate::constants::{DIM, HOLE_RADIUS, HOLE_VARIANTS};
+use crate::Result;
 
 struct RGB {
     r: f64,
@@ -118,6 +119,18 @@ pub fn output_simulation(
             holes_color.g,
             holes_color.b
         )?;
+    }
+
+    Ok(())
+}
+
+pub fn output_positions(file: &File, particles: &Vec<Particle<DIM>>, time: f64) -> Result<()> {
+    let mut writer = BufWriter::new(file);
+
+    writeln!(writer, "{time}")?;
+    for ball in particles {
+        let r = ball.derivatives()[0];
+        writeln!(writer, "{} {}", r[0], r[1])?;
     }
 
     Ok(())

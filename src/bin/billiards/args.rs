@@ -31,6 +31,6 @@ pub struct Cli {
     #[arg(short, long, default_value_t = String::from("./billiards.xyz"))]
     pub xyz_output_path: String,
 
-    #[arg(short, long, default_value_t = String::from("./billiards.txt"))]
-    pub data_output_path: String,
+    #[arg(short, long)]
+    pub data_output_path: Option<String>,
 }
