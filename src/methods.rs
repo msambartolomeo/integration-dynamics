@@ -242,7 +242,7 @@ impl<const DIM: usize> IntegrationMethod<DIM> for VerletLeapFrog<DIM> {
         let mut derivatives = Vec::new();
 
         for particle in particles.iter() {
-            derivatives.push(self.calculate_step(particle, &particles));
+            derivatives.push(self.calculate_step(particle, particles));
         }
 
         for (i, particle) in particles.iter_mut().enumerate() {

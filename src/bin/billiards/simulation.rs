@@ -21,7 +21,7 @@ pub struct Billiards {
 impl Billiards {
     pub fn new(
         delta_t: f64,
-        integration_method: Integration,
+        integration_method: &Integration,
         fixed_ball_spacing: bool,
         white_offset: f64,
         initial_velocity: [f64; DIM],
@@ -66,8 +66,8 @@ impl Billiards {
             balls.push(ball);
         }
 
-        for ball in balls.iter() {
-            for other_ball in balls.iter() {
+        for ball in &balls {
+            for other_ball in &balls {
                 if ball != other_ball {
                     let distance = ball.get_distance(other_ball);
                     assert!(BALL_SPACING_LOWER_BOUND <= distance);

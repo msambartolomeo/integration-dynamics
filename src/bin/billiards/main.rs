@@ -20,7 +20,7 @@ fn main() -> Result<()> {
 
     let mut simulation = Billiards::new(
         args.simulation_delta_t,
-        args.integration_method,
+        &args.integration_method,
         args.fixed_spacing,
         args.white_offset,
         INITIAL_WHITE_BALL_VELOCITY,

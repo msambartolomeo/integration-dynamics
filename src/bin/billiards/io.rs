@@ -74,11 +74,10 @@ pub fn output_simulation(
     let mut writer = BufWriter::new(file);
 
     let particle_count = particles.len() + HOLE_VARIANTS.len();
-    writeln!(writer, "{}", particle_count)?;
+    writeln!(writer, "{particle_count}")?;
     writeln!(
         writer,
-        "Properties=pos:R:{}:velo:R:{}:radius:R:1:color:R:3 pbc=\"F F\"",
-        DIM, DIM
+        "Properties=pos:R:{DIM}:velo:R:{DIM}:radius:R:1:color:R:3 pbc=\"F F\"",
     )?;
 
     // NOTE: Write the particles
@@ -105,10 +104,7 @@ pub fn output_simulation(
     // NOTE: Write the holes
     for hole in &HOLE_VARIANTS {
         let hole_coordinates = hole.coordinates();
-        let hole_radius = match include_holes {
-            true => HOLE_RADIUS,
-            false => 0.0,
-        };
+        let hole_radius = if include_holes { HOLE_RADIUS } else { 0.0 };
 
         writeln!(
             writer,
