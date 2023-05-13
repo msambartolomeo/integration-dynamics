@@ -124,7 +124,8 @@ impl Billiards {
                 .iter()
                 .zip(hole_r.iter())
                 .map(|(a, b)| (a - b).powi(2))
-                .sum::<f64>();
+                .sum::<f64>()
+                .sqrt();
             if distance <= (particle_radius + HOLE_RADIUS) {
                 return true;
             }
