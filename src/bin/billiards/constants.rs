@@ -39,14 +39,14 @@ pub enum Hole {
 }
 
 impl Hole {
-    pub fn coordinates(&self) -> (f64, f64) {
+    pub fn coordinates(&self) -> [f64; DIM] {
         match self {
-            Hole::BottomLeft => (0.0, 0.0),
-            Hole::BottomMiddle => (TABLE_LENGTH / 2.0, 0.0),
-            Hole::BottomRight => (TABLE_LENGTH, 0.0),
-            Hole::TopLeft => (0.0, TABLE_WIDTH),
-            Hole::TopMiddle => (TABLE_LENGTH / 2.0, TABLE_WIDTH),
-            Hole::TopRight => (TABLE_LENGTH, TABLE_WIDTH),
+            Hole::BottomLeft => [0.0, 0.0],
+            Hole::BottomMiddle => [TABLE_LENGTH / 2.0, 0.0],
+            Hole::BottomRight => [TABLE_LENGTH, 0.0],
+            Hole::TopLeft => [0.0, TABLE_WIDTH],
+            Hole::TopMiddle => [TABLE_LENGTH / 2.0, TABLE_WIDTH],
+            Hole::TopRight => [TABLE_LENGTH, TABLE_WIDTH],
         }
     }
 }
@@ -136,6 +136,7 @@ pub fn acceleration_function(particle: &Particle<DIM>, others: &[Particle<DIM>])
     }
 
     // Add wall collisions
+
     for i in 0..DIM {
         // Left and bottom walls
         if derivatives[0][i] <= particle.radius() {

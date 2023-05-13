@@ -9,12 +9,12 @@ use integration_dynamics::{
 
 use crate::constants::{
     self, acceleration_function, BALL_COUNT, BALL_MASS, BALL_RADIUS, BALL_SPACING_LOWER_BOUND,
-    BALL_SPACING_RANGE, DIM, TABLE_WIDTH,
+    BALL_SPACING_RANGE, DIM, HOLE_RADIUS, HOLE_VARIANTS, TABLE_WIDTH,
 };
 use rand::Rng;
 
 pub struct Billiards {
-    balls: Vec<Option<Particle<DIM>>>,
+    balls: Vec<Particle<DIM>>,
     integration_method: Box<dyn IntegrationMethod<DIM>>,
 }
 
@@ -109,15 +109,35 @@ impl Billiards {
             }
         };
 
-        let balls = balls.into_iter().map(Some).collect();
-
         Self {
             balls,
             integration_method,
         }
     }
 
-    pub fn run(steps: usize) {
-        todo!()
+    fn is_colliding_with_hole(particle: &Particle<DIM>) -> bool {
+        let r = particle.derivatives()[0];
+        let particle_radius = particle.radius();
+        for hole in &HOLE_VARIANTS {
+            let hole_r = hole.coordinates();
+            let distance = r
+                .iter()
+                .zip(hole_r.iter())
+                .map(|(a, b)| (a - b).powi(2))
+                .sum::<f64>();
+            if distance <= (particle_radius + HOLE_RADIUS) {
+                return true;
+            }
+        }
+        false
+    }
+
+    pub fn run(&mut self, steps: usize) -> Vec<[f64; DIM]> {
+        for _ in 0..steps {
+            self.integration_method.advance_step(&mut self.balls);
+            self.balls
+                .retain(|particle| !Self::is_colliding_with_hole(particle));
+        }
+        self.balls.iter().map(|b| b.derivatives()[0]).collect()
     }
 }
