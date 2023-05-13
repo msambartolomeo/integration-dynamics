@@ -23,6 +23,7 @@ fn main() -> Result<()> {
         args.white_offset,
         INITIAL_WHITE_BALL_VELOCITY,
         !args.ignore_holes,
+        args.ball_count_stop_condition,
     );
 
     let output_iters = (args.max_time / args.output_delta_t) as usize;
@@ -34,6 +35,10 @@ fn main() -> Result<()> {
         let particles = simulation.run(simulation_iters);
 
         output_simulation(&file, particles, !args.ignore_holes)?;
+
+        if particles.len() == args.ball_count_stop_condition {
+            break;
+        }
     }
 
     Ok(())

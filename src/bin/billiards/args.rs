@@ -4,6 +4,9 @@ use integration_dynamics::Integration;
 #[derive(Parser, Debug)]
 #[command(name = "Billiards Integration", author, version, about)]
 pub struct Cli {
+    #[arg(short, long, default_value_t = 0)]
+    pub ball_count_stop_condition: usize,
+
     #[arg(short, long)]
     pub ignore_holes: bool,
 

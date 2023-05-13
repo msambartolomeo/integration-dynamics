@@ -17,6 +17,7 @@ pub struct Billiards {
     balls: Vec<Particle<DIM>>,
     integration_method: Box<dyn IntegrationMethod<DIM>>,
     include_holes: bool,
+    ball_count_stop_condition: usize,
 }
 
 impl Billiards {
@@ -27,7 +28,10 @@ impl Billiards {
         white_offset: f64,
         initial_velocity: [f64; DIM],
         include_holes: bool,
+        ball_count_stop_condition: usize,
     ) -> Self {
+        assert!(ball_count_stop_condition <= BALL_COUNT);
+
         let mut rng = rand::thread_rng();
 
         let mut get_ball_spacing = move || {
@@ -115,6 +119,7 @@ impl Billiards {
             balls,
             integration_method,
             include_holes,
+            ball_count_stop_condition,
         }
     }
 
@@ -142,6 +147,10 @@ impl Billiards {
             if self.include_holes {
                 self.balls
                     .retain(|particle| !Self::is_colliding_with_hole(particle));
+
+                if self.balls.len() == self.ball_count_stop_condition {
+                    break;
+                }
             }
         }
         &self.balls
