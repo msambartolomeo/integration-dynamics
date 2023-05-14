@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-RESULTS_PATH = "./analysis/oscillator/figs/"
+RESULTS_PATH = "./analysis/billiards/parallel_universes/figs/"
 
 DIR = "./analysis/billiards/parallel_universes/data/"
 
@@ -74,7 +74,7 @@ def plot():
         plt.plot(times, phi, label=f"k={i + 3}")
 
     plt.legend()
-    fig.savefig(RESULTS_PATH + "values.png")
+    fig.savefig(RESULTS_PATH + "phi.png")
 
     plt.show()
 
