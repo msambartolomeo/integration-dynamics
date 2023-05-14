@@ -8,15 +8,15 @@ Y_MIN_POS = 0.42
 Y_STEP = 0.007
 
 
-RUNS_PER_POS = 10
+RUNS_PER_POS = 100
 
 BALLS_TO_WAIT_FOR = 8
-DELTA_T = 0.00001
+DELTA_T = 0.0001
 
 
 RESULTS_PATH = f"./analysis/billiards/lucky_shot/data/"
 
-
+os.makedirs(RESULTS_PATH, exist_ok=True)
 for y_pos in np.arange(Y_MIN_POS, Y_MAX_POS, Y_STEP):
     y_pos_str = str(round(y_pos, 3))
     y_offset_str = str(round(Y_MAX_POS - y_pos, 3))
@@ -41,6 +41,6 @@ for y_pos in np.arange(Y_MIN_POS, Y_MAX_POS, Y_STEP):
 
         times.append(run.stdout.split(" ")[2])
 
-    with open(RESULTS_PATH + y_pos_str + ".txt", "w") as f:
+    with open(RESULTS_PATH + y_pos_str + ".txt", "a") as f:
         for time in times:
             f.write(time)

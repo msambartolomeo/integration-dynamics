@@ -71,7 +71,7 @@ def plot():
     plt.yscale("log")
 
     for i, phi in enumerate(phis):
-        plt.plot(times, phi, label=f"k={i + 3}")
+        plt.plot(times, phi, label=f"k={i + 2}")
 
     plt.legend()
     fig.savefig(RESULTS_PATH + "phi.png")
